@@ -41,24 +41,27 @@ export default function CameraScreen() {
     setLoading(true);
 
     try {
-      const photo = await cameraRef.current.takePictureAsync({ base64: true });
-      const base64Img = photo.base64;
-      
-      const apiKey = "K86763709388957"; // input your api key here 
+      // Take picture and get local URI
+      const photo = await cameraRef.current.takePictureAsync();
+      const localUri = photo.uri;
 
+      // Prepare FormData for upload
       const formData = new FormData();
-      formData.append("base64Image", `data:image/jpg;base64,${base64Img}`);
-      formData.append("language", "eng");
+      formData.append('image', {
+        uri: localUri,
+        name: 'photo.jpg',
+        type: 'image/jpeg',
+      });
 
-      const response = await axios.post("https://api.ocr.space/parse/image", formData, {
+      const apiUrl = 'http://192.168.254.3:8000/ocr';
+
+      const response = await axios.post(apiUrl, formData, {
         headers: {
-          apikey: apiKey,
-          "Content-Type": "multipart/form-data",
+          'Content-Type': 'multipart/form-data',
         },
       });
 
-      const parsedText = response.data.ParsedResults?.[0]?.ParsedText || "No text found";
-      setCapturedText(parsedText);
+      setCapturedText(response.data);
     } catch (error) {
       console.error(error);
       setCapturedText('Error processing image.');
