@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
 import { Camera, CameraView } from 'expo-camera';
-import * as FileSystem from 'expo-file-system';
 import axios from 'axios';
 
 export default function CameraScreen() {
@@ -15,7 +14,7 @@ export default function CameraScreen() {
       try {
         const { status } = await Camera.requestCameraPermissionsAsync();
         setHasPermission(status === 'granted');
-      } catch (err) {
+      } catch {
         setHasPermission(false);
       }
     })();
@@ -23,14 +22,15 @@ export default function CameraScreen() {
 
   if (hasPermission === null) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems : 'center' }}>
+      <View style={styles.centered}>
         <Text>Requesting camera permission...</Text>
       </View>
     );
   }
+
   if (hasPermission === false) {
     return (
-      <View style={{ flex : 1, justifyContent: 'center', alignItems : 'center' }}>
+      <View style={styles.centered}>
         <Text>No access to camera</Text>
       </View>
     );
@@ -41,11 +41,9 @@ export default function CameraScreen() {
     setLoading(true);
 
     try {
-      // Take picture and get local URI
       const photo = await cameraRef.current.takePictureAsync();
       const localUri = photo.uri;
 
-      // Prepare FormData for upload
       const formData = new FormData();
       formData.append('image', {
         uri: localUri,
@@ -56,12 +54,11 @@ export default function CameraScreen() {
       const apiUrl = 'http://192.168.254.3:8000/ocr';
 
       const response = await axios.post(apiUrl, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      setCapturedText(response.data);
+      // Read text from JSON response
+      setCapturedText(response.data.text || 'No text detected.');
     } catch (error) {
       console.error(error);
       setCapturedText('Error processing image.');
@@ -79,13 +76,12 @@ export default function CameraScreen() {
         </View>
       ) : (
         <>
-          <CameraView ref={cameraRef} style={styles.camera}>
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity onPress={takePicture} style={styles.captureButton}>
-                <Text style={styles.captureText}>Scan</Text>
-              </TouchableOpacity>
-            </View>
-          </CameraView>
+          <CameraView ref={cameraRef} style={styles.camera} />
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity onPress={takePicture} style={styles.captureButton}>
+              <Text style={styles.captureText}>Scan</Text>
+            </TouchableOpacity>
+          </View>
           <ScrollView style={styles.textContainer}>
             <Text style={styles.textOutput}>{capturedText}</Text>
           </ScrollView>
@@ -96,10 +92,8 @@ export default function CameraScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
+  container: { flex: 1, backgroundColor: '#fff' },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   buttonContainer: {
     flex: 1,
     backgroundColor: 'transparent',
@@ -107,36 +101,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 40,
   },
-  captureButton: {
-    backgroundColor: 'rgb(161, 52, 235)',
-    padding: 15,
-    borderRadius: 50,
-  },
-  captureText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  textContainer: {
-    padding: 10,
-    backgroundColor: '#f5f5f5',
-    maxHeight: 100,
-  },
-  textOutput: {
-    
-    fontSize: 16,
-    color: '#333',
-  },
-  loadingContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  camera : {
-    flex : 1,
-    width : 300,
-    borderRadius : 40,
-    marginTop: 100,
-
-  },
+  captureButton: { backgroundColor: 'rgb(161, 52, 235)', padding: 15, borderRadius: 50 },
+  captureText: { color: 'white', fontSize: 18, fontWeight: 'bold' },
+  textContainer: { padding: 10, backgroundColor: '#f5f5f5', maxHeight: 100 },
+  textOutput: { fontSize: 16, color: '#333' },
+  loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  camera: { flex: 1, width: 300, borderRadius: 40, marginTop: 100 },
 });
+  
