@@ -51,7 +51,7 @@ export default function CameraScreen() {
         type: 'image/jpeg',
       });
 
-      const apiUrl = 'http://192.168.254.3:8000/ocr';
+      const apiUrl = 'http://192.168.1.206:8000/ocr';
 
       const response = await axios.post(apiUrl, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
