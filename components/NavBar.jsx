@@ -24,12 +24,16 @@ export default function NavBar({setButton}) {
 
 const styles = StyleSheet.create({
     navbar : {
-        width : '100%',
+        width : '90%',
         backgroundColor : 'rgb(161, 52, 235)',
         height : '10%',
         flexDirection : 'row',
         justifyContent : 'space-around',
         padding : 20,
+        borderRadius: 50,
+        margin : 10,   
+        position : 'absolute',
+        bottom : 0,     
     },
 
     icon : {
