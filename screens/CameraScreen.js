@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView, StyleSheet, Image } from 'react-native';
 import { Camera, CameraView } from 'expo-camera';
 import axios from 'axios';
 
@@ -57,7 +57,6 @@ export default function CameraScreen() {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      // Read text from JSON response
       setCapturedText(response.data.text || 'No text detected.');
     } catch (error) {
       console.error(error);
@@ -76,15 +75,18 @@ export default function CameraScreen() {
         </View>
       ) : (
         <>
-          <CameraView ref={cameraRef} style={styles.camera} />
+          <View style={styles.camera_container}>
+            <Image style={styles.scan_animation} source={require('../assets/Scan Matrix.gif')} />
+            <CameraView ref={cameraRef} style={styles.camera} />
+          </View>
           <View style={styles.buttonContainer}>
+            <ScrollView style={styles.textContainer}>
+              <Text style={styles.textOutput}>{capturedText}</Text>
+            </ScrollView>
             <TouchableOpacity onPress={takePicture} style={styles.captureButton}>
-              <Text style={styles.captureText}>Scan</Text>
+              <Image style={styles.captureButtonLogo} source={require('../assets/imgs/camera.png')}  />
             </TouchableOpacity>
           </View>
-          <ScrollView style={styles.textContainer}>
-            <Text style={styles.textOutput}>{capturedText}</Text>
-          </ScrollView>
         </>
       )}
     </View>
@@ -92,20 +94,62 @@ export default function CameraScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  container: { 
+    flex: 1, 
+    justifyContent : 'center',
+    alignItems : 'center',
+  },
+  centered: {
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center' 
+  },
   buttonContainer: {
-    flex: 1,
     backgroundColor: 'transparent',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    marginBottom: 40,
   },
-  captureButton: { backgroundColor: 'rgb(161, 52, 235)', padding: 15, borderRadius: 50 },
-  captureText: { color: 'white', fontSize: 18, fontWeight: 'bold' },
-  textContainer: { padding: 10, backgroundColor: '#f5f5f5', maxHeight: 100 },
-  textOutput: { fontSize: 16, color: '#333' },
-  loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  camera: { flex: 1, width: 300, borderRadius: 40, marginTop: 100 },
+  captureButton: { 
+    backgroundColor: 'rgb(161, 52, 235)',
+    padding: 15,
+    borderRadius: 50 
+  },
+  captureButtonLogo : {
+    width : 34,
+    height : 34,
+  },
+  textContainer: { 
+    padding: 10, 
+    maxHeight: 100 
+
+  },
+  textOutput: { 
+    fontSize: 16, 
+    color: '#333' 
+  },
+  loadingContainer: { 
+    flex: 1, 
+    alignItems: 'center', 
+    justifyContent: 'center' 
+  },
+
+  camera_container : {
+    width: 350,
+    height: 400,
+    borderColor: 'rgb(161, 52, 235)',
+    borderWidth: 2,
+  },
+
+  camera: {  
+    width : '100%',
+    height : '100%',  
+  },
+  scan_animation : {
+    width : '100%',
+    height : '100%',
+    position : "absolute",
+    zIndex : 99999,
+    backgroundColor : 'rgba(0, 0, 0, 0.56)'
+  }
 });
   
