@@ -19,17 +19,18 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-        <StatusBar style="auto" />
-        {
-          isScreen == 'Home' ? (<HomeScreen />)
-          :
-          isScreen ==  'Scan' ? (<CameraScreen />)
-          :
-          isScreen == 'Map' ? (<MapScreen />)
-          :
-          <><Text>Loading</Text></>
-          
-        }
+      <View style={styles.body}>
+          {
+            isScreen == 'Home' ? (<HomeScreen />)
+            :
+            isScreen ==  'Scan' ? (<CameraScreen />)
+            :
+            isScreen == 'Map' ? (<MapScreen />)
+            :
+            <><Text>Loading</Text></>
+            
+          }
+      </View>
         <NavBar setButton={setisScreen} />
     </SafeAreaView>
   );
@@ -37,11 +38,14 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex : 1,
     backgroundColor: '#fff',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent : "space-between"
 
   },
+  body : {
+    flex : 1,
+  }
 });

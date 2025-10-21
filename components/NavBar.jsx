@@ -26,9 +26,10 @@ const styles = StyleSheet.create({
     navbar : {
         width : '90%',
         backgroundColor : 'rgb(161, 52, 235)',
-        height : '10%',
+        height : 80,
         flexDirection : 'row',
         justifyContent : 'space-around',
+        alignItems : 'center',
         padding : 20,
         borderRadius: 50,
         margin : 10,   
