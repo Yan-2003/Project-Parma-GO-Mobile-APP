@@ -2,20 +2,20 @@ import { useState } from 'react'
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
 
-export default function NavBar({setButton}) {
+export default function NavBar({Buttun , setButton}) {
 
 
   return (
      <View style={styles.navbar}>
-           <TouchableOpacity onPress={()=>setButton('Home')}>
+           <TouchableOpacity style={Buttun == "Home" ? styles.setButton : styles.Button } onPress={()=>setButton('Home')}>
             <Image style={styles.icon} source={require('../assets/imgs/home.png')} />
            </TouchableOpacity>
 
-           <TouchableOpacity onPress={()=>setButton('Scan')}>
+           <TouchableOpacity style={Buttun == "Scan" ? styles.setButton : styles.Button } onPress={()=>setButton('Scan')}>
             <Image style={styles.icon} source={require('../assets/imgs/scan.png')} />
            </TouchableOpacity>
            
-           <TouchableOpacity onPress={()=>setButton('Map')}>
+           <TouchableOpacity style={Buttun == "Map" ? styles.setButton : styles.Button } onPress={()=>setButton('Map')}>
             <Image style={styles.icon} source={require('../assets/imgs/map.png')} />
            </TouchableOpacity>
         </View>
@@ -24,22 +24,32 @@ export default function NavBar({setButton}) {
 
 const styles = StyleSheet.create({
     navbar : {
-        width : '90%',
+        width : '80%',
         backgroundColor : 'rgb(161, 52, 235)',
-        height : 80,
+        height : 70,
         flexDirection : 'row',
         justifyContent : 'space-around',
         alignItems : 'center',
         padding : 20,
         borderRadius: 50,
-        margin : 10,   
+        margin : 20,   
         position : 'absolute',
         bottom : 0,     
     },
 
     icon : {
-        width : 34,
-        height: 34,
+        width : 25,
+        height: 25,
+    },
+
+    Button : {
+        padding : 10,
+    },
+
+    setButton : {
+        backgroundColor : 'rgba(168, 97, 219, 1)',
+        padding : 10,
+        borderRadius : 10,
     }
 
 })

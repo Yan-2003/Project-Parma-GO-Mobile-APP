@@ -31,7 +31,7 @@ export default function App() {
             
           }
       </View>
-        <NavBar setButton={setisScreen} />
+        <NavBar Buttun={isScreen} setButton={setisScreen} />
     </SafeAreaView>
   );
 }
