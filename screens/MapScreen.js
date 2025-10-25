@@ -15,7 +15,7 @@ export default function MapScreen() {
     setIsLoading(true);
     try {
       const result = await axios.get('http://192.168.1.209:8000/pharmacy/get_pharmacies');
-      console.log(result.data);
+      console.log(result.data)
       setPharmacies(result.data);
     } catch (error) {
       console.log('Error fetching pharmacies:', error);
@@ -54,49 +54,56 @@ export default function MapScreen() {
 
   return (
     <View style={styles.container}>
-      <MapView
-        style={styles.map}
-        showsUserLocation={true}
-        followsUserLocation={false}
-        initialRegion={{
-          latitude: location.latitude,
-          longitude: location.longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        }}
-      >
-        {!isLoading && Pharmacies.length > 0 &&
-          Pharmacies.map((pharmacy, index) => (
-            <Marker
-              key={index}
-              coordinate={{
-                latitude: parseFloat(pharmacy.latitude),
-                longitude: parseFloat(pharmacy.longitude),
-              }}
-              title={pharmacy.name}
-              description={pharmacy.address || 'Pharmacy location'}
-            >
-              <Image
-                source={require('../assets/imgs/drugstore.png')}
-                style={{ width: 25, height: 25 }} 
-                resizeMode="contain"
-              />
-            </Marker>
-          ))
-        }
+      {
+        !isLoading ? 
+          <MapView
+            style={styles.map}
+            showsUserLocation={true}
+            followsUserLocation={false}
+            initialRegion={{
+              latitude: location.latitude,
+              longitude: location.longitude,
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
+            }}
+          >
+              {!isLoading ?
+                Pharmacies.map((pharmacy, index) => (
+                  <Marker
+                    key={index}
+                    coordinate={{
+                      latitude: parseFloat(pharmacy.latitude),
+                      longitude: parseFloat(pharmacy.longitude),
+                    }}
+                    title={pharmacy.name}
+                    description={pharmacy.address || 'Pharmacy location'}
+                  >
+                    <Image
+                      source={require('../assets/imgs/drugstore.png')}
+                      style={{ width: 25, height: 25 }} 
+                      resizeMode="contain"
+                    />
+                  </Marker>
+                )) : <></>
+              }
 
-        <View style={styles.search_bar}>
-          <TextInput
-            value={SearchBar}
-            onChangeText={text => setSearchBar(text)}
-            style={styles.search_bar_input}
-            placeholder="Search for Pharmacies"
-          />
-          <TouchableOpacity style={styles.search_btn}>
-            <Image style={styles.icon} source={require('../assets/imgs/search.png')} />
-          </TouchableOpacity>
-        </View>
-      </MapView>
+            <View style={styles.search_bar}>
+              <TextInput
+                value={SearchBar}
+                onChangeText={text => setSearchBar(text)}
+                style={styles.search_bar_input}
+                placeholder="Search for Pharmacies"
+              />
+              <TouchableOpacity style={styles.search_btn}>
+                <Image style={styles.icon} source={require('../assets/imgs/search.png')} />
+              </TouchableOpacity>
+            </View>
+          </MapView>
+
+            : <></>
+
+
+      }
     </View>
   );
 }
