@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, ActivityIndicator, Alert, TextInput, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, View, ActivityIndicator, Alert, TextInput, TouchableOpacity, Image, ScrollView } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import axios from 'axios';
@@ -10,6 +10,10 @@ export default function MapScreen() {
   const [Pharmacies, setPharmacies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [SearchBar, setSearchBar] = useState('');
+  const [medicines, setmedicines] = useState([]);
+  const [displayMeds, setdisplayMeds] = useState(false);
+  const [isLoadingDisplayMeds, setisLoadingDisplayMeds] = useState(false);
+
 
   const get_all_pharmacies = async () => {
     setIsLoading(true);
@@ -23,6 +27,23 @@ export default function MapScreen() {
       setIsLoading(false); 
     }
   };
+
+  const display_all_medicine = async (id) =>{
+    setdisplayMeds(true)
+    try { 
+
+      const result = await axios.get(`http://192.168.1.209:8000/medicine/get_pharmacy_medicine/${id}`)
+      console.log(result.data)
+      setmedicines(result.data)
+
+
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
+
+  
 
   useEffect(() => {
     get_all_pharmacies();
@@ -55,6 +76,15 @@ export default function MapScreen() {
   return (
     <View style={styles.container}>
       {
+          displayMeds == true ? 
+          <View style={styles.container_med}> 
+            <Text>Hello</Text>
+          </View>
+          : <></>
+
+      }
+
+      {
         !isLoading ? 
           <MapView
             style={styles.map}
@@ -68,8 +98,13 @@ export default function MapScreen() {
             }}
           >
               {!isLoading ?
-                Pharmacies.map((pharmacy, index) => (
+                Pharmacies.map((pharmacy, index) =>
+                (
                   <Marker
+                  onPress={()=>{
+                    console.log(pharmacy.id)
+                    display_all_medicine(pharmacy.id)
+                  }}
                     key={index}
                     coordinate={{
                       latitude: parseFloat(pharmacy.latitude),
@@ -80,7 +115,7 @@ export default function MapScreen() {
                   >
                     <Image
                       source={require('../assets/imgs/drugstore.png')}
-                      style={{ width: 25, height: 25 }} 
+                      style={{ width: 30, height: 30 }} 
                       resizeMode="contain"
                     />
                   </Marker>
@@ -152,4 +187,15 @@ const styles = StyleSheet.create({
   search_btn: {
     padding: 10,
   },
+
+  container_med : {
+    backgroundColor: 'white',
+    borderColor: 'gray',
+    borderWidth: 1,
+    width : '80%',
+    height : 300,
+    position : 'absolute',
+    alignSelf : 'center'
+  }
+
 });
