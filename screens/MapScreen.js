@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, ActivityIndicator, Alert, TextInput, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { StyleSheet, View, ActivityIndicator, Alert, TextInput, TouchableOpacity, Image, ScrollView, Text } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import axios from 'axios';
@@ -18,7 +18,7 @@ export default function MapScreen() {
   const get_all_pharmacies = async () => {
     setIsLoading(true);
     try {
-      const result = await axios.get('http://192.168.1.209:8000/pharmacy/get_pharmacies');
+      const result = await axios.get('http://192.168.254.4:8000/pharmacy/get_pharmacies');
       console.log(result.data)
       setPharmacies(result.data);
     } catch (error) {
@@ -30,17 +30,26 @@ export default function MapScreen() {
 
   const display_all_medicine = async (id) =>{
     setdisplayMeds(true)
+    setisLoadingDisplayMeds(true)
     try { 
 
-      const result = await axios.get(`http://192.168.1.209:8000/medicine/get_pharmacy_medicine/${id}`)
+      const result = await axios.get(`http://192.168.254.4:8000/medicine/get_pharmacy_medicine/${id}`)
       console.log(result.data)
       setmedicines(result.data)
-
-
+      setisLoadingDisplayMeds(false)
     } catch (error) {
       console.log(error)
+      setisLoadingDisplayMeds(false)
     }
 
+  }
+
+
+  const rerender = () =>{
+
+
+
+    
   }
 
   
@@ -75,15 +84,6 @@ export default function MapScreen() {
 
   return (
     <View style={styles.container}>
-      {
-          displayMeds == true ? 
-          <View style={styles.container_med}> 
-            <Text>Hello</Text>
-          </View>
-          : <></>
-
-      }
-
       {
         !isLoading ? 
           <MapView
@@ -132,12 +132,36 @@ export default function MapScreen() {
               <TouchableOpacity style={styles.search_btn}>
                 <Image style={styles.icon} source={require('../assets/imgs/search.png')} />
               </TouchableOpacity>
-            </View>
+            </View> 
+
+
+
+              {
+                displayMeds  ? 
+                  <View style={styles.container_med} >
+                    <TouchableOpacity style={styles.close_btn} onPress={()=>setdisplayMeds(false)}><Text>x</Text></TouchableOpacity>
+                    <ScrollView style={styles.meds_list}>
+                        {
+                          !isLoadingDisplayMeds ? 
+                            medicines.map((med, index)=>{
+                              return (
+                                <View key={index}> 
+                                  <Text>{med.name}</Text>
+                                </View>
+                              ) 
+                            })
+
+                          : <View><Text>Loading......</Text></View>
+                        }
+                    </ScrollView>
+                  </View>
+
+                : <></>
+              }
+
           </MapView>
 
             : <></>
-
-
       }
     </View>
   );
@@ -195,7 +219,21 @@ const styles = StyleSheet.create({
     width : '80%',
     height : 300,
     position : 'absolute',
-    alignSelf : 'center'
+    alignSelf : 'center',
+    marginTop : 200,
+    borderRadius : 20,
+    padding : 10,
+  },
+
+
+  close_btn : {
+    backgroundColor : 'gray',
+    width : 20,
+    height : 20,
+    borderRadius : 10,
+    justifyContent : 'center',
+    alignItems : 'center',
+    alignSelf : 'flex-end'
   }
 
 });
