@@ -3,7 +3,7 @@ import { StyleSheet, View, ActivityIndicator, Alert, TextInput, TouchableOpacity
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import axios from 'axios';
-
+import { API_URL } from '@env'
 export default function MapScreen() {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -13,12 +13,13 @@ export default function MapScreen() {
   const [medicines, setmedicines] = useState([]);
   const [displayMeds, setdisplayMeds] = useState(false);
   const [isLoadingDisplayMeds, setisLoadingDisplayMeds] = useState(false);
+  const [displayTitle, setdisplayTitle] = useState('');
 
 
   const get_all_pharmacies = async () => {
     setIsLoading(true);
     try {
-      const result = await axios.get('http://192.168.254.4:8000/pharmacy/get_pharmacies');
+      const result = await axios.get(`${API_URL}/pharmacy/get_pharmacies`);
       console.log(result.data)
       setPharmacies(result.data);
     } catch (error) {
@@ -33,7 +34,7 @@ export default function MapScreen() {
     setisLoadingDisplayMeds(true)
     try { 
 
-      const result = await axios.get(`http://192.168.254.4:8000/medicine/get_pharmacy_medicine/${id}`)
+      const result = await axios.get(`${API_URL}/medicine/get_pharmacy_medicine/${id}`)
       console.log(result.data)
       setmedicines(result.data)
       setisLoadingDisplayMeds(false)
@@ -43,16 +44,6 @@ export default function MapScreen() {
     }
 
   }
-
-
-  const rerender = () =>{
-
-
-
-    
-  }
-
-  
 
   useEffect(() => {
     get_all_pharmacies();
@@ -85,6 +76,33 @@ export default function MapScreen() {
   return (
     <View style={styles.container}>
       {
+        displayMeds  ? 
+          <View style={styles.container_med} >
+            <View style={styles.med_top_bar}>
+              <Text style={styles.med_title}>{displayTitle}</Text>
+              <TouchableOpacity style={styles.close_btn} onPress={()=>setdisplayMeds(false)}><Text>x</Text></TouchableOpacity>
+            </View>
+            <ScrollView style={styles.meds_list}>
+                {
+                  !isLoadingDisplayMeds ? 
+                    medicines.map((med, index)=>{
+                      return (
+                        <View style={styles.med_item} key={index}> 
+                          <Text>{med.name}</Text>
+                          <Text>{med.stock}</Text>
+                          <Text>₱{med.price}</Text>
+                        </View>
+                      ) 
+                    })
+
+                  : <View><Text>Loading......</Text></View>
+                }
+            </ScrollView>
+          </View>
+
+        : <></>
+      }
+      {
         !isLoading ? 
           <MapView
             style={styles.map}
@@ -104,6 +122,7 @@ export default function MapScreen() {
                   onPress={()=>{
                     console.log(pharmacy.id)
                     display_all_medicine(pharmacy.id)
+                    setdisplayTitle(pharmacy.name)
                   }}
                     key={index}
                     coordinate={{
@@ -133,32 +152,6 @@ export default function MapScreen() {
                 <Image style={styles.icon} source={require('../assets/imgs/search.png')} />
               </TouchableOpacity>
             </View> 
-
-
-
-              {
-                displayMeds  ? 
-                  <View style={styles.container_med} >
-                    <TouchableOpacity style={styles.close_btn} onPress={()=>setdisplayMeds(false)}><Text>x</Text></TouchableOpacity>
-                    <ScrollView style={styles.meds_list}>
-                        {
-                          !isLoadingDisplayMeds ? 
-                            medicines.map((med, index)=>{
-                              return (
-                                <View key={index}> 
-                                  <Text>{med.name}</Text>
-                                </View>
-                              ) 
-                            })
-
-                          : <View><Text>Loading......</Text></View>
-                        }
-                    </ScrollView>
-                  </View>
-
-                : <></>
-              }
-
           </MapView>
 
             : <></>
@@ -220,9 +213,10 @@ const styles = StyleSheet.create({
     height : 300,
     position : 'absolute',
     alignSelf : 'center',
-    marginTop : 200,
+    top : 100,
     borderRadius : 20,
     padding : 10,
+    zIndex : 100000000000,
   },
 
 
@@ -234,6 +228,31 @@ const styles = StyleSheet.create({
     justifyContent : 'center',
     alignItems : 'center',
     alignSelf : 'flex-end'
+  },
+
+  med_top_bar : {
+    alignItems : 'center',
+    flexDirection : 'row',
+    width : '100%',
+    justifyContent : 'space-between',
+    marginBottom : 20,
+  },
+
+  med_title : {
+    fontSize : 20,
+    fontWeight : 700,
+  },
+
+  med_item : { 
+    width : "95%",
+    alignSelf : 'center',
+    justifyContent : 'space-between',
+    alignItems : 'center',
+    padding : 10,
+    backgroundColor : 'rgba(212, 212, 212, 1)',
+    margin : 1,
+    flexDirection : 'row',
+    borderRadius : 10,
   }
 
 });

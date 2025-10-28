@@ -6,14 +6,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import CameraScreen from './screens/CameraScreen';
 import MapScreen from './screens/MapScreen';
-
+import {API_URL} from '@env'
 
 
 export default function App() {
 
   const [isScreen, setisScreen] = useState('Home');
 
-
+  console.log("READING API END POINT: ", API_URL)
 
 
 

@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView, StyleSheet, Image } from 'react-native';
 import { Camera, CameraView } from 'expo-camera';
 import axios from 'axios';
+import { API_URL} from '@env'
 
 export default function CameraScreen() {
   const cameraRef = useRef(null);
@@ -51,7 +52,7 @@ export default function CameraScreen() {
         type: 'image/jpeg',
       });
 
-      const apiUrl = 'http://192.168.1.206:8000/ocr';
+      const apiUrl = `${API_URL}/ocr`;
 
       const response = await axios.post(apiUrl, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
