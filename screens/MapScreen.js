@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, ActivityIndicator, Alert, TextInput, TouchableOpacity, Image, ScrollView, Text } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
+
 import axios from 'axios';
 import { API_URL } from '@env'
 export default function MapScreen() {
@@ -14,6 +15,7 @@ export default function MapScreen() {
   const [displayMeds, setdisplayMeds] = useState(false);
   const [isLoadingDisplayMeds, setisLoadingDisplayMeds] = useState(false);
   const [displayTitle, setdisplayTitle] = useState('');
+  const [routeCoords, setRouteCoords] = useState([]);
 
 
   const get_all_pharmacies = async () => {
@@ -29,12 +31,39 @@ export default function MapScreen() {
     }
   };
 
-  const display_all_medicine = async (id) =>{
+  const display_all_medicine = async (pharmacy) =>{
     setdisplayMeds(true)
     setisLoadingDisplayMeds(true)
+    try {
+        const start = `${location.longitude},${location.latitude}`;
+        const end = `${pharmacy.longitude},${pharmacy.latitude}`;
+        const response = await fetch(
+          `https://router.project-osrm.org/route/v1/driving/${start};${end}?overview=full&geometries=geojson`
+        );
+        const data = await response.json();
+
+        console.log("fetching data from routing: " , data)
+
+        if (data.routes && data.routes.length > 0) {
+          const coords = data.routes[0].geometry.coordinates.map(([longitude, latitude]) => ({
+            latitude,
+            longitude,
+          }));
+
+          console.log("SET ROUTE: " , routeCoords)
+
+          setRouteCoords(coords);
+        } else {
+          Alert.alert("No Route Found", "Could not find a route between points.");
+        }
+      } catch (error) {
+        console.error("Error fetching route:", error);
+        Alert.alert("Error", "Failed to fetch route data.");
+      }
+
     try { 
 
-      const result = await axios.get(`${API_URL}/medicine/get_pharmacy_medicine/${id}`)
+      const result = await axios.get(`${API_URL}/medicine/get_pharmacy_medicine/${pharmacy.id}`)
       console.log(result.data)
       setmedicines(result.data)
       setisLoadingDisplayMeds(false)
@@ -42,6 +71,8 @@ export default function MapScreen() {
       console.log(error)
       setisLoadingDisplayMeds(false)
     }
+
+
 
   }
 
@@ -87,11 +118,11 @@ export default function MapScreen() {
                   !isLoadingDisplayMeds ? 
                     medicines.map((med, index)=>{
                       return (
-                        <View style={styles.med_item} key={index}> 
+                        <TouchableOpacity style={styles.med_item} key={index}> 
                           <Text>{med.name}</Text>
                           <Text>{med.stock}</Text>
                           <Text>₱{med.price}</Text>
-                        </View>
+                        </TouchableOpacity>
                       ) 
                     })
 
@@ -121,7 +152,7 @@ export default function MapScreen() {
                   <Marker
                   onPress={()=>{
                     console.log(pharmacy.id)
-                    display_all_medicine(pharmacy.id)
+                    display_all_medicine(pharmacy)
                     setdisplayTitle(pharmacy.name)
                   }}
                     key={index}
@@ -141,6 +172,7 @@ export default function MapScreen() {
                 )) : <></>
               }
 
+            <Polyline coordinates={routeCoords} strokeColor='red' strokeWidth={5} /> 
             <View style={styles.search_bar}>
               <TextInput
                 value={SearchBar}
