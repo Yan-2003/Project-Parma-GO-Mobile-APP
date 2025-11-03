@@ -1,5 +1,7 @@
-import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, Alert } from 'react-native'
 import React, { useState } from 'react'
+import axios from 'axios';
+import {API_URL} from '@env'
 
 export default function AdminScreen() {
 
@@ -15,7 +17,7 @@ export default function AdminScreen() {
     const register_pharmacy =  async () =>{
 
         try {
-        const response = await axios.post("http://localhost:8000/pharmacy/add_pharmacy", {
+        const response = await axios.post( API_URL + "/pharmacy/add_pharmacy", {
             'name' : name,
             'address' : address,
             'email' : email,
@@ -27,10 +29,13 @@ export default function AdminScreen() {
     
         console.log(response)
         if(response.status == 200){
-            alert("Successfully Registered Pharmacy!")
+            Alert.alert("Successfully Registered Pharmacy!")
+        }else{
+          Alert.alert("Unable to register Pharmacy")
         }
         } catch (error) {
             console.log(error)
+            Alert.alert("Unable to register Pharmacy")
         }
     }
 
@@ -38,14 +43,14 @@ export default function AdminScreen() {
     <View style={styles.content}>
       <Text>Register a Pharmacy</Text>
       <View style={styles.form}>
-        <TextInput style={styles.input_style} placeholder='Pharmacy Name'  />
-        <TextInput style={styles.input_style} placeholder='Pharmacy Address'  />
-        <TextInput style={styles.input_style} placeholder='Email'  />
-        <TextInput style={styles.input_style} placeholder='Openning Hours'  />
-        <TextInput style={styles.input_style} placeholder='Contact Number'  />
-        <TextInput style={styles.input_style} placeholder='Latitude'  />
-        <TextInput style={styles.input_style} placeholder='Longitude'  />
-        <TouchableOpacity style={styles.btn_submit}><Text style={styles.textwhite}>Submit</Text></TouchableOpacity>
+        <TextInput value={name} onChangeText={e => setname(e)} style={styles.input_style} placeholder='Pharmacy Name'  />
+        <TextInput value={address} onChangeText={e=> setaddress(e)} style={styles.input_style} placeholder='Pharmacy Address'  />
+        <TextInput value={email} onChangeText={e=>setemail(e)} style={styles.input_style} placeholder='Email'  />
+        <TextInput value={openningHours} onChangeText={e=>setopenningHours(e)} style={styles.input_style} placeholder='Openning Hours'  />
+        <TextInput value={contactNumber} onChangeText={e=>setcontactNumber(e)} style={styles.input_style} placeholder='Contact Number'  />
+        <TextInput keyboardType='numeric' value={Latitude} onChangeText={e=>setLatitude(e)} style={styles.input_style} placeholder='Latitude'  />
+        <TextInput keyboardType='numeric' value={Longitude} onChangeText={e=>setLongitude(e)} style={styles.input_style} placeholder='Longitude'  />
+        <TouchableOpacity onPress={register_pharmacy} style={styles.btn_submit}><Text style={styles.textwhite}>Submit</Text></TouchableOpacity>
       </View>
     </View>
   )

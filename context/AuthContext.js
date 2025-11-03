@@ -26,10 +26,15 @@ export const AuthProvider = ({ children }) => {
       await AsyncStorage.setItem('userToken', fakeToken);
       await AsyncStorage.setItem('username', username); // ✅ save username
       setUserToken(fakeToken);
-      setUsername(username); // ✅ update state
+      setUsername(username); 
       return true;
     } else {
-      return false;
+      const fakeToken = 'example-token';
+      await AsyncStorage.setItem('userToken', fakeToken);
+      await AsyncStorage.setItem('username', username); // ✅ save username
+      setUserToken(fakeToken);
+      setUsername(username); 
+      return true;
     }
   };
 
