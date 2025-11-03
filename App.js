@@ -7,11 +7,17 @@ import { useState } from 'react';
 import CameraScreen from './screens/CameraScreen';
 import MapScreen from './screens/MapScreen';
 import {API_URL} from '@env'
-
+import LoginScreen from './screens/LoginScreen';
+import { AuthProvider } from './context/AuthContext';
 
 export default function App() {
 
   const [isScreen, setisScreen] = useState('Home');
+
+  const [isLogIn, setisLogIn] = useState(false);
+
+
+
 
   console.log("READING API END POINT: ", API_URL)
 
@@ -19,19 +25,28 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.body}>
-          {
-            isScreen == 'Home' ? (<HomeScreen />)
-            :
-            isScreen ==  'Scan' ? (<CameraScreen />)
-            :
-            isScreen == 'Map' ? (<MapScreen />)
-            :
-            <><Text>Loading</Text></>
-            
-          }
-      </View>
-        <NavBar Buttun={isScreen} setButton={setisScreen} />
+      <AuthProvider>
+        {
+          isLogIn ? 
+          <>
+          <View style={styles.body}>
+              {
+                isScreen == 'Home' ? (<HomeScreen />)
+                :
+                isScreen ==  'Scan' ? (<CameraScreen />)
+                :
+                isScreen == 'Map' ? (<MapScreen />)
+                :
+                <><Text>Loading</Text></>
+                
+              }
+          </View>
+            <NavBar Buttun={isScreen} setButton={setisScreen} />
+          </>
+
+          : <LoginScreen setisLogin={setisLogIn} />
+        }
+      </AuthProvider>
     </SafeAreaView>
   );
 }
