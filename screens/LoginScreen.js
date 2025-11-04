@@ -1,6 +1,8 @@
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native'
 import React, { useContext, useState } from 'react'
 import { AuthContext } from '../context/AuthContext';
+import axios from 'axios';
+import {API_URL} from '@env'
 
 export default function LoginScreen({setisLogin}) {
 
@@ -10,6 +12,35 @@ export default function LoginScreen({setisLogin}) {
   const [FullName, setFullName] = useState();
   const { login } = useContext(AuthContext);
   const [registering, setregistering] = useState(false);
+
+
+  const handdle_register = async () =>{
+
+      console.log("Regsiter user")
+
+      try {
+        const request = await axios.post(API_URL + '/user/register', {
+          username : username,
+          name : FullName,
+          password : password
+        })
+
+        console.log(request)
+
+        if(request.status == 200){
+          Alert.alert("Successfully Registered.")
+        }else{
+          Alert.alert("There was something wrong registering the account")
+        }
+
+
+      } catch (error) {
+          console.log(error)
+      }
+
+
+
+  }
 
   const handdle_login =  async () =>{
     console.log("Login: " + username)
@@ -51,7 +82,7 @@ export default function LoginScreen({setisLogin}) {
               <TextInput value={FullName} onChangeText={e=>setFullName(e)} style={styles.input_style} placeholder='Full Name' />
               <TextInput secureTextEntry={true} value={password} onChangeText={e=>setpassword(e)} style={styles.input_style} placeholder='Password' />
               <TextInput secureTextEntry={true} value={confirmPassword} onChangeText={e=>setconfirmPassword(e)} style={styles.input_style} placeholder='Confirm Password' />
-              <TouchableOpacity style={styles.btn_login}><Text style={styles.textwhite}>Register</Text></TouchableOpacity>
+              <TouchableOpacity onPress={handdle_register} style={styles.btn_login}><Text style={styles.textwhite}>Register</Text></TouchableOpacity>
               <TouchableOpacity onPress={()=>setregistering(false)}  style={{ alignSelf : 'center', marginTop : 10 }}><Text>Click Here to Login.</Text></TouchableOpacity>
             </View>
           </View>
