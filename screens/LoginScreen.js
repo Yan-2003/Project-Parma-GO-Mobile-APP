@@ -1,8 +1,9 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native'
-import React, { useContext, useState } from 'react'
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, TouchableWithoutFeedback, ScrollView, Keyboard } from 'react-native'
+import React, { useContext, useEffect, useState } from 'react'
 import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
 import {API_URL} from '@env'
+
 
 export default function LoginScreen({setisLogin}) {
 
@@ -12,6 +13,7 @@ export default function LoginScreen({setisLogin}) {
   const [FullName, setFullName] = useState();
   const { login } = useContext(AuthContext);
   const [registering, setregistering] = useState(false);
+  const [username_exist, setusername_exist] = useState(false);
 
 
   const handdle_register = async () =>{
@@ -29,6 +31,7 @@ export default function LoginScreen({setisLogin}) {
 
         if(request.status == 200){
           Alert.alert("Successfully Registered.")
+          setregistering(false)
         }else{
           Alert.alert("There was something wrong registering the account")
         }
@@ -58,43 +61,78 @@ export default function LoginScreen({setisLogin}) {
 
   }
 
-  return (
-    <>
-      {
-      !registering ? 
-      <>
-          <View style={styles.container}>
-            <View style={styles.form}>
-              <Text style={styles.title}>Welcome To Pharma Go</Text>
-              <TextInput value={username} onChangeText={e=>setusername(e)} style={styles.input_style} placeholder='Username' />
-              <TextInput secureTextEntry={true} value={password} onChangeText={e=>setpassword(e)} style={styles.input_style} placeholder='Password' />
-              <TouchableOpacity onPress={handdle_login} style={styles.btn_login}><Text style={styles.textwhite}>Login</Text></TouchableOpacity>
-              <TouchableOpacity onPress={()=>setregistering(true)}  style={{ alignSelf : 'center', marginTop : 10 }}><Text>Click Here to Register.</Text></TouchableOpacity>
-            </View>
-          </View>
-      </>
-      : 
-      <>
-            <View style={styles.container}>
-            <View style={styles.form}>
-              <Text style={styles.title}>Welcome To Pharma Go</Text>
-              <TextInput value={username} onChangeText={e=>setusername(e)} style={styles.input_style} placeholder='Username' />
-              <TextInput value={FullName} onChangeText={e=>setFullName(e)} style={styles.input_style} placeholder='Full Name' />
-              <TextInput secureTextEntry={true} value={password} onChangeText={e=>setpassword(e)} style={styles.input_style} placeholder='Password' />
-              <TextInput secureTextEntry={true} value={confirmPassword} onChangeText={e=>setconfirmPassword(e)} style={styles.input_style} placeholder='Confirm Password' />
-              <TouchableOpacity onPress={handdle_register} style={styles.btn_login}><Text style={styles.textwhite}>Register</Text></TouchableOpacity>
-              <TouchableOpacity onPress={()=>setregistering(false)}  style={{ alignSelf : 'center', marginTop : 10 }}><Text>Click Here to Login.</Text></TouchableOpacity>
-            </View>
-          </View>
-      </>
-      }
+
+  const check_username_availability = async () =>{
+    console.log("Checking Username: " + username )
+    try {
+        const request = await axios.get(API_URL + '/user/check_username/'+ username)
+
+        if(request.data.user_found){
+          return setusername_exist(true)
+        }
+
+        return setusername_exist(false)
+    } catch (error) {
+        console.log(error)
+    }
+  }
+
+
+  useEffect(() => {
+    
+    check_username_availability()
   
-    </>
+    return () => {
+      
+    }
+  }, [username]);
+
+
+
+  return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} >
+      <ScrollView contentContainerStyle={styles.scroll}>
+        {
+        !registering ? 
+        <>
+            <View style={styles.container} >
+              <View style={styles.form}>
+                <Text style={styles.title}>Welcome To Pharma Go</Text>
+                <TextInput value={username} onChangeText={e=>setusername(e)} style={styles.input_style} placeholder='Username' />
+                <TextInput secureTextEntry={true} value={password} onChangeText={e=>setpassword(e)} style={styles.input_style} placeholder='Password' />
+                <TouchableOpacity onPress={handdle_login} style={styles.btn_login}><Text style={styles.textwhite}>Login</Text></TouchableOpacity>
+                <TouchableOpacity onPress={()=>setregistering(true)}  style={{ alignSelf : 'center', marginTop : 10 }}><Text>Click Here to Register.</Text></TouchableOpacity>
+              </View>
+            </View>
+        </>
+        : 
+        <>
+              <View style={styles.container}>
+              <View style={styles.form}>
+                <Text style={styles.title}>Welcome To Pharma Go</Text>
+                <TextInput value={username} onChangeText={e=>setusername(e)} style={username_exist ? styles.danger_input_style : styles.input_style} placeholder='Username' />
+                <TextInput value={FullName} onChangeText={e=>setFullName(e)} style={styles.input_style} placeholder='Full Name' />
+                <TextInput secureTextEntry={true} value={password} onChangeText={e=>setpassword(e)} style={styles.input_style} placeholder='Password' />
+                <TextInput secureTextEntry={true} value={confirmPassword} onChangeText={e=>setconfirmPassword(e)} style={styles.input_style} placeholder='Confirm Password' />
+                <TouchableOpacity onPress={handdle_register} style={styles.btn_login}><Text style={styles.textwhite}>Register</Text></TouchableOpacity>
+                <TouchableOpacity onPress={()=>setregistering(false)}  style={{ alignSelf : 'center', marginTop : 10 }}><Text>Click Here to Login.</Text></TouchableOpacity>
+              </View>
+            </View>
+        </>
+        }
+    
+      </ScrollView>
+    </TouchableWithoutFeedback>
 
   )
 }
 
 const styles = StyleSheet.create({
+
+  scroll : {
+    flex : 1,
+  },
+
   container : {
     flex : 1,
     justifyContent : 'center',
@@ -110,14 +148,20 @@ const styles = StyleSheet.create({
     borderWidth : 1,
     borderColor : 'gray',
     padding : 15,
-    width : "100%",
+    margin : 5,
+    borderRadius : 10,
+  },
+
+  danger_input_style : {
+    borderWidth : 1,
+    borderColor : 'red',
+    padding : 15,
     margin : 5,
     borderRadius : 10,
   },
 
   btn_login : { 
     padding : 20,
-    width : "100%",
     margin : 5,
     borderRadius : 10,
     backgroundColor : 'rgba(168, 97, 219, 1)',
