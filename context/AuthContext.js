@@ -1,18 +1,19 @@
-// AuthContext.js
 import React, { createContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import {API_URL} from '@env';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [userToken, setUserToken] = useState(null);
-  const [username, setUsername] = useState(null); // ✅ store username
+  const [username, setUsername] = useState(null); 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadToken = async () => {
       const token = await AsyncStorage.getItem('userToken');
-      const savedUsername = await AsyncStorage.getItem('username'); // ✅ load username
+      const savedUsername = await AsyncStorage.getItem('username'); 
       if (token) setUserToken(token);
       if (savedUsername) setUsername(savedUsername);
       setLoading(false);
@@ -21,20 +22,40 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (username, password) => {
+
     if (username === 'admin' && password === '1234') {
-      const fakeToken = 'example-token';
+      const fakeToken = 'secret_token';
       await AsyncStorage.setItem('userToken', fakeToken);
-      await AsyncStorage.setItem('username', username); // ✅ save username
+      await AsyncStorage.setItem('username', username); 
       setUserToken(fakeToken);
       setUsername(username); 
       return true;
     } else {
-      const fakeToken = 'example-token';
-      await AsyncStorage.setItem('userToken', fakeToken);
-      await AsyncStorage.setItem('username', username); // ✅ save username
-      setUserToken(fakeToken);
-      setUsername(username); 
-      return true;
+      console.log("Checking username: " + username)
+      try {
+          console.log("user data: ", {
+            username : username,
+            password : password
+          })
+
+        const request = await axios.post(API_URL + '/user/login', { username : username, password : password})
+        const fakeToken = 'secret_token';
+        console.log("result: ", request.data)
+
+        if(request.status == 401) return false
+
+        await AsyncStorage.setItem('userToken', fakeToken);
+        await AsyncStorage.setItem('username', request.data.username); 
+        await AsyncStorage.setItem('full_name', request.data.name); 
+        await AsyncStorage.setItem('user_role', request.data.user_role); 
+        setUserToken(fakeToken);
+        setUsername(username); 
+        return true;
+      } 
+      catch (error) {
+        console.log(error)
+        return false
+      }
     }
   };
 

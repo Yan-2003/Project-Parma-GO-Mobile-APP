@@ -11,7 +11,7 @@ import LoginScreen from './screens/LoginScreen';
 import { AuthContext, AuthProvider } from './context/AuthContext';
 import AdminScreen from './screens/AdminScreen';
 
-function AppContent() {
+function AppContent() { 
 
   const [isScreen, setisScreen] = useState('Home');
 
@@ -57,7 +57,6 @@ function AppContent() {
 
           </View>
             <NavBar Buttun={isScreen} setButton={setisScreen} />
-          
           </>
 
           : <LoginScreen setisLogin={setisLogIn} />
