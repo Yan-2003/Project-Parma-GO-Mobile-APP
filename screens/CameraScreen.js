@@ -9,6 +9,7 @@ export default function CameraScreen() {
   const [hasPermission, setHasPermission] = useState(null);
   const [loading, setLoading] = useState(false);
   const [capturedText, setCapturedText] = useState('');
+  const [isSearchMed, setisSearchMed] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -64,6 +65,7 @@ export default function CameraScreen() {
       setCapturedText('Error processing image.');
     } finally {
       setLoading(false);
+      setisSearchMed(true);
     }
   };
 
@@ -74,7 +76,7 @@ export default function CameraScreen() {
           <ActivityIndicator size="large" color="rgb(161, 52, 235)" />
           <Text>Processing image...</Text>
         </View>
-      ) : (
+      ) : !isSearchMed ? (
         <>
           <View style={styles.camera_container}>
             <Image style={styles.scan_animation} source={require('../assets/Scan Matrix.gif')} />
@@ -89,7 +91,14 @@ export default function CameraScreen() {
             </TouchableOpacity>
           </View>
         </>
-      )}
+      ) : 
+      
+      <>
+        <View style={styles.camera_container} >
+          <Text>Displaying Searching Med.</Text>
+        </View>
+      </>      
+      }
     </View>
   );
 }
