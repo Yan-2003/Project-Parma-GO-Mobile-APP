@@ -83,9 +83,7 @@ export default function CameraScreen() {
             <CameraView ref={cameraRef} style={styles.camera} />
           </View>
           <View style={styles.buttonContainer}>
-            <ScrollView style={styles.textContainer}>
-              <Text style={styles.textOutput}>{capturedText}</Text>
-            </ScrollView>
+
             <TouchableOpacity onPress={takePicture} style={styles.captureButton}>
               <Image style={styles.captureButtonLogo} source={require('../assets/imgs/camera.png')}  />
             </TouchableOpacity>
@@ -94,8 +92,12 @@ export default function CameraScreen() {
       ) : 
       
       <>
-        <View style={styles.camera_container} >
+        <View style={styles.searchMedContainer} >
+            <ScrollView style={styles.textContainer}>
+              <Text style={styles.textOutput}>{capturedText}</Text>
+            </ScrollView>
           <Text>Displaying Searching Med.</Text>
+          <TouchableOpacity onPress={()=>setisSearchMed(false)}  style={styles.scan_again_btn} ><Text style={styles.text_light} >Scan Again</Text></TouchableOpacity>
         </View>
       </>      
       }
@@ -122,7 +124,8 @@ const styles = StyleSheet.create({
   captureButton: { 
     backgroundColor: 'rgb(161, 52, 235)',
     padding: 15,
-    borderRadius: 50 
+    borderRadius: 50,
+    margin : 40,
   },
   captureButtonLogo : {
     width : 34,
@@ -160,6 +163,26 @@ const styles = StyleSheet.create({
     position : "absolute",
     zIndex : 99999,
     backgroundColor : 'rgba(0, 0, 0, 0.56)'
+  },
+
+  scan_again_btn : {
+    position : 'absolute',
+    width : '100%',
+    padding : 10,
+    borderRadius : 20,
+    backgroundColor : 'rgb(161, 52, 235)',
+    bottom : 100,
+    alignItems : 'center',
+    justifyContent : 'center'
+  },
+  
+  text_light : {
+    color : 'white'
+  },
+
+  searchMedContainer : {
+    flex : 1,
+    width : '100%'
   }
 });
   

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, TouchableWithoutFeedback, ScrollView, Keyboard } from 'react-native'
+import { StyleSheet, Text, View, TextInput,ActivityIndicator, TouchableOpacity, Alert, TouchableWithoutFeedback, ScrollView, Keyboard } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
 import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
@@ -21,6 +21,7 @@ export default function LoginScreen({setisLogin}) {
   const [reg_name, setreg_name] = useState(false);
   const [reg_password, setreg_password] = useState(false);
   const [reg_confirm_password, setreg_confirm_password] = useState(false);
+  const [isLoading, setisLoading] = useState(false);
 
 
   const handdle_register = async () =>{
@@ -75,13 +76,19 @@ export default function LoginScreen({setisLogin}) {
 
   const handdle_login =  async () =>{
 
+    setmessage("")
+
+    setisLoading(true)
+
     if(username.length == 0){
       setmessage("Please input your username.")
+      setisLoading(false)
       return setcheck_username_input(true)
     }
 
     if(password.length == 0){
       setmessage("Please input your password.")
+      setisLoading(false)
       return setcheck_password_input(true)
     }
 
@@ -91,14 +98,17 @@ export default function LoginScreen({setisLogin}) {
       console.log(success)
       if(success){
         setisLogin(true)
+        setisLoading(false)
       }else{
         setmessage("Invalid username and password please try again.")
         setcheck_username_input(true)
         setcheck_password_input(true)
         Alert.alert("Failed to Login Please try again.")
+        setisLoading(false)
       }
     } catch (error) {
       console.log(error)
+      setisLoading(false)
     }
 
   }
@@ -121,6 +131,14 @@ export default function LoginScreen({setisLogin}) {
         console.log(error)
     }
   }
+
+  useEffect(() => {
+    setmessage("")
+  
+    return () => {
+      
+    }
+  }, [username]);
 
 
   useEffect(() => {
@@ -189,7 +207,13 @@ export default function LoginScreen({setisLogin}) {
                 <Text style={styles.message_log}>{message}</Text>
                 <TextInput value={username} onChangeText={e=>setusername(e)} style={check_username_input ? styles.danger_input_style : styles.input_style} placeholder='Username' />
                 <TextInput secureTextEntry={true} value={password} onChangeText={e=>setpassword(e)} style={check_password_input ? styles.danger_input_style : styles.input_style} placeholder='Password' />
-                <TouchableOpacity onPress={handdle_login} style={styles.btn_login}><Text style={styles.textwhite}>Login</Text></TouchableOpacity>
+                  {
+                    isLoading ? 
+                    <View style={styles.btn_loading}>
+                      <ActivityIndicator size="large" color="rgb(161, 52, 235)" /> 
+                    </View>
+                    :<TouchableOpacity onPress={handdle_login} style={styles.btn_login}><Text style={styles.textwhite}>Login</Text></TouchableOpacity>
+                  }
                 <TouchableOpacity onPress={()=>setregistering(true)}  style={{ alignSelf : 'center', marginTop : 10 }}><Text>Click Here to Register.</Text></TouchableOpacity>
               </View>
             </View>
@@ -275,5 +299,9 @@ const styles = StyleSheet.create({
     fontSize : 10,
     paddingLeft : 10,
   },
+
+  btn_loading : {
+    margin : 5,
+  }
 
 })
