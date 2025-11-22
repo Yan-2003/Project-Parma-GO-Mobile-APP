@@ -93,10 +93,18 @@ export default function CameraScreen() {
       
       <>
         <View style={styles.searchMedContainer} >
+          <View style={styles.searcMedContent}>
             <ScrollView style={styles.textContainer}>
               <Text style={styles.textOutput}>{capturedText}</Text>
             </ScrollView>
-          <Text>Displaying Searching Med.</Text>
+            <TouchableOpacity style={styles.search_med_btn}><Text style={styles.text_light}>Search Scan Text</Text></TouchableOpacity>
+          </View>
+          <ScrollView style={styles.searched_meds_container} >
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="rgb(161, 52, 235)" />
+              <Text>Searching Medicine....</Text>
+            </View>
+          </ScrollView>
           <TouchableOpacity onPress={()=>setisSearchMed(false)}  style={styles.scan_again_btn} ><Text style={styles.text_light} >Scan Again</Text></TouchableOpacity>
         </View>
       </>      
@@ -133,8 +141,9 @@ const styles = StyleSheet.create({
   },
   textContainer: { 
     padding: 10, 
-    maxHeight: 100 
-
+    maxHeight: 100,
+    borderWidth : 1,
+    borderRadius : 10,
   },
   textOutput: { 
     fontSize: 16, 
@@ -182,7 +191,26 @@ const styles = StyleSheet.create({
 
   searchMedContainer : {
     flex : 1,
-    width : '100%'
+    paddingTop: 20,
+    width : 300,
+  },
+  search_med_btn : {
+    backgroundColor : 'rgb(161, 52, 235)',
+    padding : 10,
+    marginTop : 10,
+    borderRadius : 10,
+    justifyContent : 'center',
+    alignItems : 'center'
+  },
+  searcMedContent : {
+    height : 150,
+  },
+  searched_meds_container : {
+    padding : 5,
+    borderWidth : 1,
+    borderColor : 'black',
+    borderRadius : 10,
+    maxHeight : " 60%",
   }
 });
   
