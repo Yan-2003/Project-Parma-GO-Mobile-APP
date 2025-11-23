@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView, StyleSheet
 import { Camera, CameraView } from 'expo-camera';
 import axios from 'axios';
 import { API_URL} from '@env'
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CameraScreen() {
   const cameraRef = useRef(null);
@@ -87,57 +88,63 @@ export default function CameraScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="rgb(161, 52, 235)" />
-          <Text>Processing image...</Text>
-        </View>
-      ) : !isSearchMed ? (
-        <>
-          <View style={styles.camera_container}>
-            <Image style={styles.scan_animation} source={require('../assets/Scan Matrix.gif')} />
-            <CameraView ref={cameraRef} style={styles.camera} />
+    <SafeAreaView style={styles.container}>
+      <View>
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="rgb(161, 52, 235)" />
+            <Text>Processing image...</Text>
           </View>
-          <View style={styles.buttonContainer}>
+        ) : !isSearchMed ? (
+          <>
+            <View style={styles.camera_container}>
+              <Image style={styles.scan_animation} source={require('../assets/Scan Matrix.gif')} />
+              <CameraView ref={cameraRef} style={styles.camera} />
+            </View>
+            <View style={styles.buttonContainer}>
 
-            <TouchableOpacity onPress={takePicture} style={styles.captureButton}>
-              <Image style={styles.captureButtonLogo} source={require('../assets/imgs/camera.png')}  />
-            </TouchableOpacity>
-          </View>
-        </>
-      ) : 
-      
-      <>
-        <View style={styles.searchMedContainer} >
-          <View style={styles.searcMedContent}>
-            <TextInput style={styles.textContainer} value={capturedText} onChangeText={(text)=> setCapturedText(text) } autoCapitalize="none" autoCorrect={false} />
-            <TouchableOpacity onPress={()=> searchMed()} style={styles.search_med_btn}><Text style={styles.text_light}>Search Scan Text</Text></TouchableOpacity>
-          </View>
-          <ScrollView style={styles.searched_meds_container} >
-            {
-              loading ? (
-                <View style={styles.loadingContainer}>
-                  <ActivityIndicator size="large" color="rgb(161, 52, 235)" />
-                  <Text>Searching Medicine....</Text>
-                </View>
-              )
-              : meds.map((medicine , index)=>{
-                return (
-                  <TouchableOpacity style={styles.item_medicine} key={index}>
-                    <Text>{medicine.name}</Text>
-                    <Text>{medicine.strength}</Text>
-                    <Text>{medicine.dosage_form}</Text>
-                  </TouchableOpacity>
+              <TouchableOpacity onPress={takePicture} style={styles.captureButton}>
+                <Image style={styles.captureButtonLogo} source={require('../assets/imgs/camera.png')}  />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={()=> setisSearchMed(true) } style={styles.search_med_button_capcutre} ><Text style={styles.text_light} >Search Medicine</Text></TouchableOpacity> 
+            </View>
+          </>
+        ) : 
+        
+        <>
+          <View style={styles.searchMedContainer} >
+            <View style={styles.searcMedContent}>
+              <TextInput style={styles.textContainer} value={capturedText} onChangeText={(text)=> setCapturedText(text) } autoCapitalize="none" autoCorrect={false} />
+              <TouchableOpacity onPress={()=> searchMed()} style={styles.search_med_btn}><Text style={styles.text_light}>Search Scan Text</Text></TouchableOpacity>
+            </View>
+            <ScrollView style={styles.searched_meds_container} >
+              {
+                loading ? (
+                  <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color="rgb(161, 52, 235)" />
+                    <Text>Searching Medicine....</Text>
+                  </View>
                 )
-              })
-            }
-          </ScrollView>
-          <TouchableOpacity onPress={()=>setisSearchMed(false)}  style={styles.scan_again_btn} ><Text style={styles.text_light} >Scan Again</Text></TouchableOpacity>
-        </View>
-      </>      
-      }
-    </View>
+                : meds.map((medicine , index)=>{
+                  return (
+                    <TouchableOpacity style={styles.item_medicine} key={index}>
+                      <View style={{ justifyContent : 'center' , alignItems : 'flex-start' }} >
+                        <Text style={{ fontSize : 15 , fontWeight : 'bold' }} >{medicine.name}</Text>
+                        <Text style={{ fontSize : 10 }} >{medicine.strength}</Text>
+                        <Text>{medicine.dosage_form}</Text>
+                        <Text style={{ backgroundColor : 'rgb(161, 52, 235)' , color : 'white' , padding : 5, borderRadius : 5}}>{medicine.pharma_name}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  )
+                })
+              }
+            </ScrollView>
+            <TouchableOpacity onPress={()=>setisSearchMed(false)}  style={styles.scan_again_btn} ><Text style={styles.text_light} >Scan Again</Text></TouchableOpacity>
+          </View>
+        </>      
+        }
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -145,7 +152,7 @@ const styles = StyleSheet.create({
   container: { 
     flex: 1, 
     justifyContent : 'center',
-    alignItems : 'center',
+    alignItems : 'center'
   },
   centered: {
     flex: 1, 
@@ -214,7 +221,7 @@ const styles = StyleSheet.create({
 
   searchMedContainer : {
     flex : 1,
-    width : 300,
+    width : 340,
   },
   search_med_btn : {
     backgroundColor : 'rgb(161, 52, 235)',
@@ -229,19 +236,21 @@ const styles = StyleSheet.create({
   },
   searched_meds_container : {
     marginTop : 10,
-    padding : 10,
-    borderWidth : 1,
-    borderColor : 'black',
     borderRadius : 10,
     maxHeight : " 65%",
   },
 
   item_medicine : {
     width : '100%',
-    backgroundColor : 'gray',
+    backgroundColor : 'rgba(245, 233, 253, 1)',
     padding : 10,
     marginTop : 5,
     borderRadius : 10,
+  }, 
+  search_med_button_capcutre : {
+     backgroundColor: 'rgb(161, 52, 235)',
+     padding : 20,
+     borderRadius : 20,
   }
 });
   
