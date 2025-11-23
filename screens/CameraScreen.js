@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView, StyleSheet, Image } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView, StyleSheet, Image, TextInput } from 'react-native';
 import { Camera, CameraView } from 'expo-camera';
 import axios from 'axios';
 import { API_URL} from '@env'
@@ -10,6 +10,7 @@ export default function CameraScreen() {
   const [loading, setLoading] = useState(false);
   const [capturedText, setCapturedText] = useState('');
   const [isSearchMed, setisSearchMed] = useState(false);
+  const [meds, setmeds] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -60,6 +61,7 @@ export default function CameraScreen() {
       });
 
       setCapturedText(response.data.text || 'No text detected.');
+      searchMed()
     } catch (error) {
       console.error(error);
       setCapturedText('Error processing image.');
@@ -68,6 +70,21 @@ export default function CameraScreen() {
       setisSearchMed(true);
     }
   };
+
+
+  const searchMed = async () => {
+
+    setLoading(true)
+
+    try {
+       const response = await axios.get(API_URL  + "/medicine/get_pharmacy_meds/search?input=" + capturedText)
+       setmeds(response.data)
+       setLoading(false)
+    } catch (error) {
+      setLoading(false)
+      console.log(error)
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -94,16 +111,27 @@ export default function CameraScreen() {
       <>
         <View style={styles.searchMedContainer} >
           <View style={styles.searcMedContent}>
-            <ScrollView style={styles.textContainer}>
-              <Text style={styles.textOutput}>{capturedText}</Text>
-            </ScrollView>
-            <TouchableOpacity style={styles.search_med_btn}><Text style={styles.text_light}>Search Scan Text</Text></TouchableOpacity>
+            <TextInput style={styles.textContainer} value={capturedText} onChangeText={(text)=> setCapturedText(text) } autoCapitalize="none" autoCorrect={false} />
+            <TouchableOpacity onPress={()=> searchMed()} style={styles.search_med_btn}><Text style={styles.text_light}>Search Scan Text</Text></TouchableOpacity>
           </View>
           <ScrollView style={styles.searched_meds_container} >
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="rgb(161, 52, 235)" />
-              <Text>Searching Medicine....</Text>
-            </View>
+            {
+              loading ? (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="large" color="rgb(161, 52, 235)" />
+                  <Text>Searching Medicine....</Text>
+                </View>
+              )
+              : meds.map((medicine , index)=>{
+                return (
+                  <TouchableOpacity style={styles.item_medicine} key={index}>
+                    <Text>{medicine.name}</Text>
+                    <Text>{medicine.strength}</Text>
+                    <Text>{medicine.dosage_form}</Text>
+                  </TouchableOpacity>
+                )
+              })
+            }
           </ScrollView>
           <TouchableOpacity onPress={()=>setisSearchMed(false)}  style={styles.scan_again_btn} ><Text style={styles.text_light} >Scan Again</Text></TouchableOpacity>
         </View>
@@ -141,13 +169,8 @@ const styles = StyleSheet.create({
   },
   textContainer: { 
     padding: 10, 
-    maxHeight: 100,
     borderWidth : 1,
     borderRadius : 10,
-  },
-  textOutput: { 
-    fontSize: 16, 
-    color: '#333' 
   },
   loadingContainer: { 
     flex: 1, 
@@ -191,7 +214,6 @@ const styles = StyleSheet.create({
 
   searchMedContainer : {
     flex : 1,
-    paddingTop: 20,
     width : 300,
   },
   search_med_btn : {
@@ -203,14 +225,23 @@ const styles = StyleSheet.create({
     alignItems : 'center'
   },
   searcMedContent : {
-    height : 150,
+    marginTop : 30,
   },
   searched_meds_container : {
-    padding : 5,
+    marginTop : 10,
+    padding : 10,
     borderWidth : 1,
     borderColor : 'black',
     borderRadius : 10,
-    maxHeight : " 60%",
+    maxHeight : " 65%",
+  },
+
+  item_medicine : {
+    width : '100%',
+    backgroundColor : 'gray',
+    padding : 10,
+    marginTop : 5,
+    borderRadius : 10,
   }
 });
   
