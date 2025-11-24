@@ -76,6 +76,7 @@ export default function CameraScreen() {
   const searchMed = async () => {
 
     setLoading(true)
+    setmeds([])
 
     try {
        const response = await axios.get(API_URL  + "/medicine/get_pharmacy_meds/search?input=" + capturedText)

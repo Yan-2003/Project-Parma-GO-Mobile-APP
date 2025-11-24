@@ -25,6 +25,7 @@ export default function NavBar({Buttun , setButton}) {
 const styles = StyleSheet.create({
     navbar : {
         width : '80%',
+        alignSelf : 'center',
         backgroundColor : 'rgb(161, 52, 235)',
         height : 70,
         flexDirection : 'row',

@@ -18,16 +18,24 @@
         "NSLocationWhenInUseUsageDescription": "This app needs access to your location to show your position on the map."
       }
     },
-    "permissions": ["CAMERA"],
+    "permissions": [
+      "CAMERA"
+    ],
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.kingramon_kd.Pharma_Mobile_App"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "29aedd62-b6f4-4bcd-a89f-4eb38fcebbec"
+      }
     }
   }
 }

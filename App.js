@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import NavBar from './components/NavBar';
 import HomeScreen from './screens/HomeScreen';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useContext, useState } from 'react';
 import CameraScreen from './screens/CameraScreen';
 import MapScreen from './screens/MapScreen';
@@ -26,14 +26,14 @@ function AppContent() {
 
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaProvider style={styles.container}>
         {
           isLogIn ? 
           <>
           <View style={styles.body}>
               {
                 
-                username == 'admin' ? <AdminScreen / >
+                username == 'admin' ? <AdminScreen />
 
                 :  
                 
@@ -61,7 +61,7 @@ function AppContent() {
 
           : <LoginScreen setisLogin={setisLogIn} />
         }
-    </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
@@ -80,10 +80,6 @@ const styles = StyleSheet.create({
   container: {
     flex : 1,
     backgroundColor: '#fff',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent : "space-between"
-
   },
   body : {
     flex : 1,
