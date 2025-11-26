@@ -4,6 +4,7 @@ import { Camera, CameraView } from 'expo-camera';
 import axios from 'axios';
 import { API_URL} from '@env'
 import { SafeAreaView } from 'react-native-safe-area-context';
+import ViewMedicineModal from '../components/modals/ViewMedicineModal';
 
 export default function CameraScreen() {
   const cameraRef = useRef(null);
@@ -12,6 +13,7 @@ export default function CameraScreen() {
   const [capturedText, setCapturedText] = useState('');
   const [isSearchMed, setisSearchMed] = useState(false);
   const [meds, setmeds] = useState([]);
+  const [isMedModal, setisMedModal] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -72,6 +74,10 @@ export default function CameraScreen() {
     }
   };
 
+  const viewMedByItem = () =>{
+    setisMedModal(true)
+  }
+
 
   const searchMed = async () => {
 
@@ -90,11 +96,12 @@ export default function CameraScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <ViewMedicineModal setisMedModal={setisMedModal} isMedModal={isMedModal} />
       <View>
         {loading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="rgb(161, 52, 235)" />
-            <Text>Processing image...</Text>
+            <Text>Processing...</Text>
           </View>
         ) : !isSearchMed ? (
           <>
@@ -128,12 +135,15 @@ export default function CameraScreen() {
                 )
                 : meds.map((medicine , index)=>{
                   return (
-                    <TouchableOpacity style={styles.item_medicine} key={index}>
+                    <TouchableOpacity onPress={()=>viewMedByItem()} style={styles.item_medicine} key={index}>
                       <View style={{ justifyContent : 'center' , alignItems : 'flex-start' }} >
                         <Text style={{ fontSize : 15 , fontWeight : 'bold' }} >{medicine.name}</Text>
                         <Text style={{ fontSize : 10 }} >{medicine.strength}</Text>
                         <Text>{medicine.dosage_form}</Text>
                         <Text style={{ backgroundColor : 'rgb(161, 52, 235)' , color : 'white' , padding : 5, borderRadius : 5}}>{medicine.pharma_name}</Text>
+                      </View>
+                      <View style={styles.price}>
+                        <Text style={styles.price_text} >₱{medicine.price}</Text>
                       </View>
                     </TouchableOpacity>
                   )
@@ -247,11 +257,26 @@ const styles = StyleSheet.create({
     padding : 10,
     marginTop : 5,
     borderRadius : 10,
+    flexDirection : 'row',
+    alignItems : 'center',
+    justifyContent : 'space-between'
   }, 
   search_med_button_capcutre : {
      backgroundColor: 'rgb(161, 52, 235)',
      padding : 20,
      borderRadius : 20,
-  }
+  }, 
+  price  : {
+    backgroundColor: 'rgba(68, 37, 88, 1)',
+    color : 'white',
+    padding : 20,
+    borderRadius : 10,
+  },
+
+  price_text : {
+    color : 'white',
+    fontSize : 15,
+    fontWeight : 'bold'
+  },
 });
   
