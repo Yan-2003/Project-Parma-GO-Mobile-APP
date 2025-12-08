@@ -14,6 +14,7 @@ export default function CameraScreen() {
   const [isSearchMed, setisSearchMed] = useState(false);
   const [meds, setmeds] = useState([]);
   const [isMedModal, setisMedModal] = useState(false);
+  const [medsID, setmedsID] = useState();
 
   useEffect(() => {
     (async () => {
@@ -74,8 +75,9 @@ export default function CameraScreen() {
     }
   };
 
-  const viewMedByItem = () =>{
+  const viewMedByItem = (id) =>{
     setisMedModal(true)
+    setmedsID(id)
   }
 
 
@@ -96,7 +98,7 @@ export default function CameraScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ViewMedicineModal setisMedModal={setisMedModal} isMedModal={isMedModal} />
+      <ViewMedicineModal setisMedModal={setisMedModal} isMedModal={isMedModal} medID={medsID} />
       <View>
         {loading ? (
           <View style={styles.loadingContainer}>
@@ -135,7 +137,7 @@ export default function CameraScreen() {
                 )
                 : meds.map((medicine , index)=>{
                   return (
-                    <TouchableOpacity onPress={()=>viewMedByItem()} style={styles.item_medicine} key={index}>
+                    <TouchableOpacity onPress={()=>viewMedByItem(medicine.id)} style={styles.item_medicine} key={index}>
                       <View style={{ justifyContent : 'center' , alignItems : 'flex-start' }} >
                         <Text style={{ fontSize : 15 , fontWeight : 'bold' }} >{medicine.name}</Text>
                         <Text style={{ fontSize : 10 }} >{medicine.strength}</Text>

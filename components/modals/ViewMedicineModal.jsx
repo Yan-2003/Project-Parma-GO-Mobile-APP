@@ -1,7 +1,38 @@
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
+import {API_URL} from '@env';
 
 export default function ViewMedicineModal({setisMedModal , isMedModal, medID}) {
+
+  const [Medicine, setMedicine] = useState();
+
+  const getMedByID = async () => {
+
+    try {
+      
+      const med = await axios.get(API_URL + '/medicine/get_medby_id/' + medID)
+      console.log("MED ID: " + medID)
+
+      console.log("Displaying Meds Data: ", med.data)
+      setMedicine(med.data[0])
+
+      } catch (error) {
+          console.log(error)
+      }
+
+  }
+
+
+  useEffect(() => {
+    if (isMedModal) getMedByID()
+  
+    return () => {
+      
+    }
+  }, [isMedModal]);
+
   return (
     <Modal
         visible={isMedModal}
@@ -13,6 +44,9 @@ export default function ViewMedicineModal({setisMedModal , isMedModal, medID}) {
         <View style={styles.modal_container}>
             <View style={styles.modal_header}>
                 <Text style={{ fontSize : 15, fontWeight : 'bold' }}>View Medicine</Text>
+            </View>
+            <View>
+              <Text>name: {Medicine?.name}</Text>
             </View>
             <View style={styles.close_btn_cotainer} >
                 <TouchableOpacity onPress={()=>setisMedModal(false)} style={styles.close_btn}><Text style={{ color : 'white' }}>Close</Text></TouchableOpacity>
