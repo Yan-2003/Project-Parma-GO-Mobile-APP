@@ -45,8 +45,13 @@ export default function ViewMedicineModal({setisMedModal , isMedModal, medID}) {
             <View style={styles.modal_header}>
                 <Text style={{ fontSize : 15, fontWeight : 'bold' }}>View Medicine</Text>
             </View>
-            <View>
-              <Text>name: {Medicine?.name}</Text>
+            <View style={styles.display_body}>
+              <Text style={{ fontSize : 20, fontWeight : 'bold'  }}>{Medicine?.name}</Text>
+              <Text>Description: {Medicine?.description}</Text>
+              <Text>Brand: {Medicine?.brand}</Text>
+              <Text>Dosage: {Medicine?.dosage_form}</Text>
+              <Text>Strength: {Medicine?.strength}</Text>
+              <Text>Price: {Medicine?.price}</Text>
             </View>
             <View style={styles.close_btn_cotainer} >
                 <TouchableOpacity onPress={()=>setisMedModal(false)} style={styles.close_btn}><Text style={{ color : 'white' }}>Close</Text></TouchableOpacity>
@@ -95,6 +100,11 @@ const styles = StyleSheet.create({
     paddingBottom : 10,
   },
 
+  display_body  :{
+    flex : 1, 
+    margin : 10,
+
+  },
     
 
 })
