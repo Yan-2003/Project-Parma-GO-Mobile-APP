@@ -19,6 +19,10 @@ function AppContent() {
 
   const { username } = useContext(AuthContext)
 
+  const [routeCoords, setRouteCoords] = useState([]);
+
+  const [location, setLocation] = useState(null);
+
 
 
   console.log("READING API END POINT: ", API_URL)
@@ -42,9 +46,9 @@ function AppContent() {
                   {
                     isScreen == 'Home' ? (<HomeScreen />)
                     :
-                    isScreen ==  'Scan' ? (<CameraScreen />)
+                    isScreen ==  'Scan' ? (<CameraScreen setisScreen={setisScreen} setRouteCoords={setRouteCoords} />)
                     :
-                    isScreen == 'Map' ? (<MapScreen />)
+                    isScreen == 'Map' ? (<MapScreen location={location} setLocation={setLocation} routeCoords={routeCoords} setRouteCoords={setRouteCoords} />)
                     :
                     <><Text>Loading</Text></>
                   }

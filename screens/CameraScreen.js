@@ -6,7 +6,7 @@ import { API_URL} from '@env'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ViewMedicineModal from '../components/modals/ViewMedicineModal';
 
-export default function CameraScreen() {
+export default function CameraScreen({ setisScreen , setRouteCoords }) {
   const cameraRef = useRef(null);
   const [hasPermission, setHasPermission] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -98,7 +98,7 @@ export default function CameraScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ViewMedicineModal setisMedModal={setisMedModal} isMedModal={isMedModal} medID={medsID} />
+      <ViewMedicineModal setisMedModal={setisMedModal} isMedModal={isMedModal} medID={medsID} setisScreen={setisScreen}  setRouteCoords={setRouteCoords}/>
       <View>
         {loading ? (
           <View style={styles.loadingContainer}>

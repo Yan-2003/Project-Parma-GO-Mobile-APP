@@ -5,8 +5,8 @@ import * as Location from 'expo-location';
 
 import axios from 'axios';
 import { API_URL } from '@env'
-export default function MapScreen() {
-  const [location, setLocation] = useState(null);
+export default function MapScreen({location , setLocation , routeCoords , setRouteCoords}) {
+  
   const [errorMsg, setErrorMsg] = useState(null);
   const [Pharmacies, setPharmacies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -15,7 +15,7 @@ export default function MapScreen() {
   const [displayMeds, setdisplayMeds] = useState(false);
   const [isLoadingDisplayMeds, setisLoadingDisplayMeds] = useState(false);
   const [displayTitle, setdisplayTitle] = useState('');
-  const [routeCoords, setRouteCoords] = useState([]);
+  
 
 
   const get_all_pharmacies = async () => {
