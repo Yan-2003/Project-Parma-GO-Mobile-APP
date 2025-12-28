@@ -3,13 +3,16 @@ import { StyleSheet, Text, View } from 'react-native';
 import NavBar from './components/NavBar';
 import HomeScreen from './screens/HomeScreen';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import CameraScreen from './screens/CameraScreen';
 import MapScreen from './screens/MapScreen';
 import {API_URL} from '@env'
 import LoginScreen from './screens/LoginScreen';
 import { AuthContext, AuthProvider } from './context/AuthContext';
 import AdminScreen from './screens/AdminScreen';
+
+
+
 
 function AppContent() { 
 
@@ -26,6 +29,17 @@ function AppContent() {
 
 
   console.log("READING API END POINT: ", API_URL)
+
+
+  useEffect(() => {
+    if(isScreen !== 'Map'){
+      setRouteCoords([])
+    }
+  
+    return () => {
+      
+    }
+  }, [isScreen]);
 
 
 
