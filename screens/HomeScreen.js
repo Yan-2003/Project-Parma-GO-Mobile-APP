@@ -1,14 +1,17 @@
-import { StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native'
+import { StyleSheet, View, Text, Image, TouchableOpacity, ScrollView } from 'react-native'
 import { useEffect, useState } from 'react'
-import NavBar from '../components/NavBar'
+import MapView, { Marker, Polyline } from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context'
 import axios from 'axios';
 import {API_URL} from '@env'
+import Card from '../components/Card';
 
 export default function HomeScreen() {
 
   const [isProfile, setisProfile] = useState(false);
   const [countMed, setcountMed] = useState(0);
+  const [countPharma, setcountPharma] = useState(0);
+  const [openPharma, setopenPharma] = useState(0);
 
   const get_all_med_count = async () =>{
     try {
@@ -21,9 +24,20 @@ export default function HomeScreen() {
   }
 
 
+    const get_all_pharma_count = async () =>{
+    try {
+      const request = await axios.get(API_URL + '/dashboard/get_all_pharma_count')
+      console.log(request.data)
+      return setcountPharma(request.data[0].count_pharma)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
 
   useEffect(() => {
     get_all_med_count()
+    get_all_pharma_count()
   
     return () => {
       
@@ -47,10 +61,20 @@ export default function HomeScreen() {
       <View style={styles.body}>
         {
           !isProfile ?
-          <View>
-            <Text>You are in Home</Text>
-            <Text>Total Med: {countMed}</Text>
-          </View>
+          <ScrollView style={{ flex : 1 , padding : 10 , width : '95%' , marginTop : 20}}>
+            <View style={{ width : '100%' , flexDirection : 'row', gap : 10 , justifyContent : 'space-between' , marginBottom : 10}}>
+              <Card title={"Medicine Available "} data={countMed} size='65%' color='rgb(255, 153, 89)' textColor='white' /> 
+              <Card title={"Pharmacies "} data={countPharma} size='30%' color='rgb(86, 86, 214)' textColor='white'/> 
+            </View>
+
+            <View style={{ width : '100%' , flexDirection : 'row', gap : 10 , justifyContent : 'space-between' , marginBottom : 10}}>
+              <Card title={"Still Open Pharamcies "} data={openPharma} size='100%' /> 
+            </View>
+            <View style={{ gap : 10 }}>
+              <Text style={{ fontSize : 15 , fontWeight : 'bold' }}>Recent Pharmacy</Text>
+              <MapView style={{ width : '100%' , height : 200 , borderRadius : 20}} /> 
+            </View>
+          </ScrollView>
           :
           <View style={styles.profile_content}>
             <Image style={{ width : 250, height : 250}} source={require("../assets/imgs/bussiness-man.png")} />
