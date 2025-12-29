@@ -1,11 +1,34 @@
 import { StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import NavBar from '../components/NavBar'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import axios from 'axios';
+import {API_URL} from '@env'
 
 export default function HomeScreen() {
 
   const [isProfile, setisProfile] = useState(false);
+  const [countMed, setcountMed] = useState(0);
+
+  const get_all_med_count = async () =>{
+    try {
+      const request = await axios.get(API_URL + '/dashboard/get_all_med_count')
+      console.log(request.data)
+      return setcountMed(request.data[0].count_med)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+
+
+  useEffect(() => {
+    get_all_med_count()
+  
+    return () => {
+      
+    }
+  }, []);
 
 
   return (
@@ -24,7 +47,10 @@ export default function HomeScreen() {
       <View style={styles.body}>
         {
           !isProfile ?
-          <Text>You are in Home</Text>
+          <View>
+            <Text>You are in Home</Text>
+            <Text>Total Med: {countMed}</Text>
+          </View>
           :
           <View style={styles.profile_content}>
             <Image style={{ width : 250, height : 250}} source={require("../assets/imgs/bussiness-man.png")} />
