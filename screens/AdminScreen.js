@@ -1,9 +1,13 @@
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, Alert } from 'react-native'
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import axios from 'axios';
 import {API_URL} from '@env'
+import { AuthContext } from '../context/AuthContext';
 
-export default function AdminScreen() {
+export default function AdminScreen({setisLogin}) {
+
+
+    const {logout} = useContext(AuthContext)
 
     const [name, setname] = useState();
     const [address, setaddress] = useState();
@@ -39,6 +43,11 @@ export default function AdminScreen() {
         }
     }
 
+  const handdle_logout = async () =>{
+    await logout()
+    setisLogin(false)
+  }
+
   return (
     <View style={styles.content}>
       <Text>Register a Pharmacy</Text>
@@ -51,6 +60,7 @@ export default function AdminScreen() {
         <TextInput keyboardType='numeric' value={Latitude} onChangeText={e=>setLatitude(e)} style={styles.input_style} placeholder='Latitude'  />
         <TextInput keyboardType='numeric' value={Longitude} onChangeText={e=>setLongitude(e)} style={styles.input_style} placeholder='Longitude'  />
         <TouchableOpacity onPress={register_pharmacy} style={styles.btn_submit}><Text style={styles.textwhite}>Submit</Text></TouchableOpacity>
+        <TouchableOpacity onPress={handdle_logout} style={styles.btn_signout}><Text style={styles.textwhite}>Sign Out</Text></TouchableOpacity>
       </View>
     </View>
   )
@@ -83,6 +93,16 @@ const styles = StyleSheet.create({
     margin : 5,
     borderRadius : 10,
     backgroundColor : 'rgba(168, 97, 219, 1)',
+    justifyContent : 'center',
+    alignItems : 'center',
+  },
+
+  btn_signout : { 
+    padding : 20,
+    width : "100%",
+    margin : 5,
+    borderRadius : 10,
+    backgroundColor : 'gray',
     justifyContent : 'center',
     alignItems : 'center',
   },

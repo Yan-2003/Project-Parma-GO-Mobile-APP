@@ -205,7 +205,7 @@ export default function LoginScreen({setisLogin}) {
               <View style={styles.form}>
                 <Text style={styles.title}>Welcome To Pharma Go</Text>
                 <Text style={styles.message_log}>{message}</Text>
-                <TextInput value={username} onChangeText={e=>setusername(e)} style={check_username_input ? styles.danger_input_style : styles.input_style} placeholder='Username' />
+                <TextInput value={username} onChangeText={e=>setusername(e)} style={check_username_input ? styles.danger_input_style : styles.input_style} placeholder='Username' autoCapitalize='none' />
                 <TextInput secureTextEntry={true} value={password} onChangeText={e=>setpassword(e)} style={check_password_input ? styles.danger_input_style : styles.input_style} placeholder='Password' />
                   {
                     isLoading ? 

@@ -1,12 +1,16 @@
 import { StyleSheet, View, Text, Image, TouchableOpacity, ScrollView } from 'react-native'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context'
 import axios from 'axios';
 import {API_URL} from '@env'
 import Card from '../components/Card';
+import { AuthContext } from '../context/AuthContext';
 
-export default function HomeScreen() {
+export default function HomeScreen({setisLogin}) {
+
+  const {full_name, logout} = useContext(AuthContext)
+
 
   const [isProfile, setisProfile] = useState(false);
   const [countMed, setcountMed] = useState(0);
@@ -24,7 +28,7 @@ export default function HomeScreen() {
   }
 
 
-    const get_all_pharma_count = async () =>{
+  const get_all_pharma_count = async () =>{
     try {
       const request = await axios.get(API_URL + '/dashboard/get_all_pharma_count')
       console.log(request.data)
@@ -34,11 +38,25 @@ export default function HomeScreen() {
     }
   }
 
+  const get_all_open_pharma_count = async () =>{
+    try {
+      const request = await axios.get(API_URL + '/dashboard/get_all_open_pharma_count')
+      console.log(request.data)
+      return setopenPharma(request.data[0].open_pharmacies)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handdle_logout = async () =>{
+    await logout()
+    setisLogin(false)
+  }
 
   useEffect(() => {
     get_all_med_count()
     get_all_pharma_count()
-  
+    get_all_open_pharma_count()
     return () => {
       
     }
@@ -63,12 +81,12 @@ export default function HomeScreen() {
           !isProfile ?
           <ScrollView style={{ flex : 1 , padding : 10 , width : '95%' , marginTop : 20}}>
             <View style={{ width : '100%' , flexDirection : 'row', gap : 10 , justifyContent : 'space-between' , marginBottom : 10}}>
-              <Card title={"Medicine Available "} data={countMed} size='65%' color='rgb(255, 153, 89)' textColor='white' /> 
-              <Card title={"Pharmacies "} data={countPharma} size='30%' color='rgb(86, 86, 214)' textColor='white'/> 
+              <Card title={"Medicine Available 💊"} data={countMed} size='65%' color='rgb(255, 153, 89)' textColor='white' /> 
+              <Card title={"Pharmacies"} data={countPharma} size='30%' color='rgb(86, 86, 214)' textColor='white'/> 
             </View>
 
             <View style={{ width : '100%' , flexDirection : 'row', gap : 10 , justifyContent : 'space-between' , marginBottom : 10}}>
-              <Card title={"Still Open Pharamcies "} data={openPharma} size='100%' /> 
+              <Card title={"Still Open Pharamcies 👨🏻‍⚕️"} data={openPharma} size='100%' color='rgb(240, 132, 198)' /> 
             </View>
             <View style={{ gap : 10 }}>
               <Text style={{ fontSize : 15 , fontWeight : 'bold' }}>Recent Pharmacy</Text>
@@ -78,10 +96,10 @@ export default function HomeScreen() {
           :
           <View style={styles.profile_content}>
             <Image style={{ width : 250, height : 250}} source={require("../assets/imgs/bussiness-man.png")} />
-            <Text style={{ fontSize : 20 }}>Julliane J. Tampus</Text>
+            <Text style={{ fontSize : 20 }}>{full_name || 'Bypass Access'}</Text>
             <View style={{ gap : 10 }}>
               <TouchableOpacity onPress={()=>setisProfile(false)} ><Text style={styles.back_button}>Back to Home</Text></TouchableOpacity>
-              <TouchableOpacity ><Text style={styles.sign_out}>Sign Out</Text></TouchableOpacity>
+              <TouchableOpacity onPress={handdle_logout} ><Text style={styles.sign_out}>Sign Out</Text></TouchableOpacity>
             </View>
           </View>
         }

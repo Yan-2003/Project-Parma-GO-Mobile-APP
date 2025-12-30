@@ -51,14 +51,14 @@ function AppContent() {
           <View style={styles.body}>
               {
                 
-                username == 'admin' ? <AdminScreen />
+                username == 'admin' ? <AdminScreen setisLogin={setisLogIn} />
 
                 :  
                 
                 <>
                 
                   {
-                    isScreen == 'Home' ? (<HomeScreen />)
+                    isScreen == 'Home' ? (<HomeScreen setisLogin={setisLogIn} />)
                     :
                     isScreen ==  'Scan' ? (<CameraScreen setisScreen={setisScreen} setRouteCoords={setRouteCoords} />)
                     :

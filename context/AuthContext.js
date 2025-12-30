@@ -8,6 +8,7 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [userToken, setUserToken] = useState(null);
   const [username, setUsername] = useState(null); 
+  const [full_name, setfull_name] = useState();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -50,6 +51,7 @@ export const AuthProvider = ({ children }) => {
         await AsyncStorage.setItem('user_role', request.data.user_role); 
         setUserToken(fakeToken);
         setUsername(username); 
+        setfull_name(request.data.name)
         return true;
       } 
       catch (error) {
@@ -67,7 +69,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ userToken, username, login, logout, loading }}>
+    <AuthContext.Provider value={{ userToken, username, full_name, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
