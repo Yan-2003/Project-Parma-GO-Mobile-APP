@@ -18,7 +18,7 @@ function AppContent() {
 
   const [isScreen, setisScreen] = useState('Home');
 
-  const [isLogIn, setisLogIn] = useState(true);
+  const [isLogIn, setisLogIn] = useState(false);
 
   const { username } = useContext(AuthContext)
 

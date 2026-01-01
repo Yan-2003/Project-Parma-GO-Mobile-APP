@@ -2,22 +2,42 @@ import { useState } from 'react'
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
 
-export default function NavBar({Buttun , setButton}) {
+export default function NavBar({Buttun , setButton , userRole}) {
 
 
   return (
      <View style={styles.navbar}>
-           <TouchableOpacity style={Buttun == "Home" ? styles.setButton : styles.Button } onPress={()=>setButton('Home')}>
-            <Image style={styles.icon} source={require('../assets/imgs/home.png')} />
-           </TouchableOpacity>
+        {
+            userRole == 'admin' ? (
+                <>
+                    <TouchableOpacity style={Buttun == "AdminHome" ? styles.setButton : styles.Button } onPress={()=>setButton('Home')}>
+                        <Image style={styles.icon} source={require('../assets/imgs/home.png')} />
+                    </TouchableOpacity>
 
-           <TouchableOpacity style={Buttun == "Scan" ? styles.setButton : styles.Button } onPress={()=>setButton('Scan')}>
-            <Image style={styles.icon} source={require('../assets/imgs/scan.png')} />
-           </TouchableOpacity>
-           
-           <TouchableOpacity style={Buttun == "Map" ? styles.setButton : styles.Button } onPress={()=>setButton('Map')}>
-            <Image style={styles.icon} source={require('../assets/imgs/map.png')} />
-           </TouchableOpacity>
+                    <TouchableOpacity style={Buttun == "AddPharmacy" ? styles.setButton : styles.Button } onPress={()=>setButton('Scan')}>
+                        <Image style={styles.icon} source={require('../assets/imgs/scan.png')} />
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity style={Buttun == "AddMedicine" ? styles.setButton : styles.Button } onPress={()=>setButton('Map')}>
+                        <Image style={styles.icon} source={require('../assets/imgs/map.png')} />
+                    </TouchableOpacity>
+                </>
+            )
+            :
+            <>
+            <TouchableOpacity style={Buttun == "Home" ? styles.setButton : styles.Button } onPress={()=>setButton('Home')}>
+                <Image style={styles.icon} source={require('../assets/imgs/home.png')} />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={Buttun == "Scan" ? styles.setButton : styles.Button } onPress={()=>setButton('Scan')}>
+                <Image style={styles.icon} source={require('../assets/imgs/scan.png')} />
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={Buttun == "Map" ? styles.setButton : styles.Button } onPress={()=>setButton('Map')}>
+                <Image style={styles.icon} source={require('../assets/imgs/map.png')} />
+            </TouchableOpacity>
+            </>
+        }
         </View>
   )
 }
