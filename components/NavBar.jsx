@@ -10,16 +10,16 @@ export default function NavBar({Buttun , setButton , userRole}) {
         {
             userRole == 'admin' ? (
                 <>
-                    <TouchableOpacity style={Buttun == "AdminHome" ? styles.setButton : styles.Button } onPress={()=>setButton('Home')}>
+                    <TouchableOpacity style={Buttun == "Home" ? styles.setButton : styles.Button } onPress={()=>setButton('Home')}>
                         <Image style={styles.icon} source={require('../assets/imgs/home.png')} />
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={Buttun == "AddPharmacy" ? styles.setButton : styles.Button } onPress={()=>setButton('Scan')}>
-                        <Image style={styles.icon} source={require('../assets/imgs/scan.png')} />
+                    <TouchableOpacity style={Buttun == "AddPharmacy" ? styles.setButton : styles.Button } onPress={()=>setButton('AddPharmacy')}>
+                        <Image style={styles.icon} source={require('../assets/imgs/pharmacy.png')} />
                     </TouchableOpacity>
                     
-                    <TouchableOpacity style={Buttun == "AddMedicine" ? styles.setButton : styles.Button } onPress={()=>setButton('Map')}>
-                        <Image style={styles.icon} source={require('../assets/imgs/map.png')} />
+                    <TouchableOpacity style={Buttun == "AddMedicine" ? styles.setButton : styles.Button } onPress={()=>setButton('AddMedicine')}>
+                        <Image style={styles.icon} source={require('../assets/imgs/drugs.png')} />
                     </TouchableOpacity>
                 </>
             )

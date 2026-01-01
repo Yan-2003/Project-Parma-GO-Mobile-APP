@@ -9,7 +9,10 @@ import MapScreen from './screens/MapScreen';
 import {API_URL} from '@env'
 import LoginScreen from './screens/LoginScreen';
 import { AuthContext, AuthProvider } from './context/AuthContext';
-import AdminScreen from './screens/AdminScreen';
+//import AdminScreen from './screens/AdminScreen';
+import AddPharmacyScreen from './screens/Admin/AddPharmacyScreen';
+import InventoryScreen from './screens/Admin/InventoryScreen';
+import AddMedicineScreen from './screens/Admin/AddMedicineScreen';
 
 
 
@@ -20,7 +23,7 @@ function AppContent() {
 
   const [isLogIn, setisLogIn] = useState(false);
 
-  const { username } = useContext(AuthContext)
+  const { username, user_role } = useContext(AuthContext)
 
   const [routeCoords, setRouteCoords] = useState([]);
 
@@ -29,7 +32,6 @@ function AppContent() {
 
 
   console.log("READING API END POINT: ", API_URL)
-
 
   useEffect(() => {
     if(isScreen !== 'Map'){
@@ -41,8 +43,6 @@ function AppContent() {
     }
   }, [isScreen]);
 
-
-
   return (
     <SafeAreaProvider style={styles.container}>
         {
@@ -50,31 +50,23 @@ function AppContent() {
           <>
           <View style={styles.body}>
               {
-                
-                username == 'admin' ? <AdminScreen setisLogin={setisLogIn} />
-
-                :  
-                
-                <>
-                
-                  {
-                    isScreen == 'Home' ? (<HomeScreen setisLogin={setisLogIn} />)
-                    :
-                    isScreen ==  'Scan' ? (<CameraScreen setisScreen={setisScreen} setRouteCoords={setRouteCoords} />)
-                    :
-                    isScreen == 'Map' ? (<MapScreen location={location} setLocation={setLocation} routeCoords={routeCoords} setRouteCoords={setRouteCoords} />)
-                    :
-                    <><Text>Loading</Text></>
-                  }
-                
-                
-                </>
-                
-
+                  isScreen == 'Home' ? (
+                      username == 'admin' ? <InventoryScreen setisLogin={(setisLogIn)} />
+                      : <HomeScreen setisLogin={setisLogIn} />
+                  )
+                  :
+                  isScreen ==  'Scan' ? (<CameraScreen setisScreen={setisScreen} setRouteCoords={setRouteCoords} />)
+                  :
+                  isScreen == 'Map' ? (<MapScreen location={location} setLocation={setLocation} routeCoords={routeCoords} setRouteCoords={setRouteCoords} />)
+                  :
+                  isScreen == "AddPharmacy" ? (<AddPharmacyScreen />)
+                  :
+                  isScreen == "AddMedicine" ? (<AddMedicineScreen />)
+                  :
+                  <View style={{ flex : 1 , justifyContent : 'center', alignItems : 'center' }}><Text>Error While Rendering Content</Text></View>
               }
-
           </View>
-            <NavBar Buttun={isScreen} setButton={setisScreen} />
+            <NavBar Buttun={isScreen} setButton={setisScreen} userRole={user_role} />
           </>
 
           : <LoginScreen setisLogin={setisLogIn} />
