@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View , TextInput, TouchableOpacity, ScrollView, Platform, Alert } from 'react-native'
+import { StyleSheet, Text, View , TextInput, TouchableOpacity, ScrollView, Platform, Alert, Touchable, Keyboard, TouchableWithoutFeedback } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import DropDown from '../../components/DropDown'
@@ -97,36 +97,38 @@ export default function AddMedicineScreen() {
 
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text>Add Medicine</Text>
-        <ScrollView style={styles.form}>
-            <TextInput value={med_name} onChangeText={text => setmed_name(text) } style={styles.input_style} placeholder='Medicine Name' />
-            <TextInput value={med_descirption} onChangeText={text => setmed_descirption(text)} style={styles.input_style } placeholder='Description' />
-            <DropDown data={Pharmacies} setvalue={setmed_pharmacy} /> 
-            <TextInput value={med_brand} onChangeText={text => setmed_brand(text)} style={styles.input_style } placeholder='Brand' />
-            <TextInput value={med_dosage_form} onChangeText={text => setmed_dosage_form(text) } style={styles.input_style } placeholder='Dosage Form' />
-            <TextInput value={med_strength} onChangeText={text => setmed_strength(text) } style={styles.input_style } placeholder='Strength' />
-            <TextInput value={med_price} onChangeText={text => setmed_price(text)  } keyboardType='numeric' style={styles.input_style } placeholder='Price' />
-            <TextInput value={med_stock} onChangeText={text => setmed_stock(text) } keyboardType='numeric' style={styles.input_style } placeholder='Stock' />
-            <Text style={{ marginLeft : 10 }}>Expiration Date:</Text>
-            <TouchableOpacity
-                style={styles.input_style}
-                onPress={() => setShowExpDate(true)}
-            >
-                <Text>{med_expiration_date.toDateString()}</Text>
-            </TouchableOpacity>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <SafeAreaView style={styles.container}>
+            <Text>Add Medicine</Text>
+            <ScrollView style={styles.form}>
+                <TextInput value={med_name} onChangeText={text => setmed_name(text) } style={styles.input_style} placeholder='Medicine Name' />
+                <TextInput value={med_descirption} onChangeText={text => setmed_descirption(text)} style={styles.input_style } placeholder='Description' />
+                <DropDown data={Pharmacies} setvalue={setmed_pharmacy} /> 
+                <TextInput value={med_brand} onChangeText={text => setmed_brand(text)} style={styles.input_style } placeholder='Brand' />
+                <TextInput value={med_dosage_form} onChangeText={text => setmed_dosage_form(text) } style={styles.input_style } placeholder='Dosage Form' />
+                <TextInput value={med_strength} onChangeText={text => setmed_strength(text) } style={styles.input_style } placeholder='Strength' />
+                <TextInput value={med_price} onChangeText={text => setmed_price(text)  } keyboardType='numeric' style={styles.input_style } placeholder='Price' />
+                <TextInput value={med_stock} onChangeText={text => setmed_stock(text) } keyboardType='numeric' style={styles.input_style } placeholder='Stock' />
+                <Text style={{ marginLeft : 10 }}>Expiration Date:</Text>
+                <TouchableOpacity
+                    style={styles.input_style}
+                    onPress={() => setShowExpDate(true)}
+                >
+                    <Text>{med_expiration_date.toDateString()}</Text>
+                </TouchableOpacity>
 
-            {showExpDate && (
-                <DateTimePicker
-                value={med_expiration_date}
-                mode="date"
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                onChange={onChangeDate}
-                />
-            )}
-            <TouchableOpacity onPress={add_med} style={styles.btn_submit}><Text style={styles.textwhite}>Submit</Text></TouchableOpacity>
-        </ScrollView>
-    </SafeAreaView>
+                {showExpDate && (
+                    <DateTimePicker
+                    value={med_expiration_date}
+                    mode="date"
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    onChange={onChangeDate}
+                    />
+                )}
+                <TouchableOpacity onPress={add_med} style={styles.btn_submit}><Text style={styles.textwhite}>Submit</Text></TouchableOpacity>
+            </ScrollView>
+        </SafeAreaView>
+    </TouchableWithoutFeedback>
   )
 }
 

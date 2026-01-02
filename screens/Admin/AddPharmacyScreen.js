@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, Alert } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native'
 import React, { useState } from 'react'
 import axios from 'axios';
 import {API_URL} from '@env'
@@ -41,19 +41,21 @@ export default function AddPharmacyScreen() {
 
 
   return (
-    <View style={styles.content}>
-      <Text>Register a Pharmacy</Text>
-      <View style={styles.form}>
-        <TextInput value={name} onChangeText={e => setname(e)} style={styles.input_style} placeholder='Pharmacy Name'  />
-        <TextInput value={address} onChangeText={e=> setaddress(e)} style={styles.input_style} placeholder='Pharmacy Address'  />
-        <TextInput value={email} onChangeText={e=>setemail(e)} style={styles.input_style} placeholder='Email'  />
-        <TextInput value={openningHours} onChangeText={e=>setopenningHours(e)} style={styles.input_style} placeholder='Openning Hours'  />
-        <TextInput value={contactNumber} onChangeText={e=>setcontactNumber(e)} style={styles.input_style} placeholder='Contact Number'  />
-        <TextInput keyboardType='numeric' value={Latitude} onChangeText={e=>setLatitude(e)} style={styles.input_style} placeholder='Latitude'  />
-        <TextInput keyboardType='numeric' value={Longitude} onChangeText={e=>setLongitude(e)} style={styles.input_style} placeholder='Longitude'  />
-        <TouchableOpacity onPress={register_pharmacy} style={styles.btn_submit}><Text style={styles.textwhite}>Submit</Text></TouchableOpacity>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.content}>
+        <Text>Register a Pharmacy</Text>
+        <View style={styles.form}>
+          <TextInput value={name} onChangeText={e => setname(e)} style={styles.input_style} placeholder='Pharmacy Name'  />
+          <TextInput value={address} onChangeText={e=> setaddress(e)} style={styles.input_style} placeholder='Pharmacy Address'  />
+          <TextInput value={email} onChangeText={e=>setemail(e)} style={styles.input_style} placeholder='Email'  />
+          <TextInput value={openningHours} onChangeText={e=>setopenningHours(e)} style={styles.input_style} placeholder='Openning Hours'  />
+          <TextInput value={contactNumber} onChangeText={e=>setcontactNumber(e)} style={styles.input_style} placeholder='Contact Number'  />
+          <TextInput keyboardType='numeric' value={Latitude} onChangeText={e=>setLatitude(e)} style={styles.input_style} placeholder='Latitude'  />
+          <TextInput keyboardType='numeric' value={Longitude} onChangeText={e=>setLongitude(e)} style={styles.input_style} placeholder='Longitude'  />
+          <TouchableOpacity onPress={register_pharmacy} style={styles.btn_submit}><Text style={styles.textwhite}>Submit</Text></TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   )
 }
 
