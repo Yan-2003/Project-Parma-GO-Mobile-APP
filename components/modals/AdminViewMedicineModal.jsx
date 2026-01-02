@@ -49,6 +49,7 @@ export default function AdminViewMedicineModal({data , isModal , setisModal}) {
                         <Text>Brand: {data?.brand}</Text>
                         <Text>Dosage: {data?.dosage_form}</Text>
                         <Text>Strength: {data?.strength}</Text>
+                        <Text>Stock: {data?.stock}</Text>
                         <Text>Price: <Text style={{ fontWeight : 'bold' }}>₱{data?.price}</Text></Text>
                         <Text>Pharmacy: <Text>{pharmacy.name}</Text></Text>
                     </>

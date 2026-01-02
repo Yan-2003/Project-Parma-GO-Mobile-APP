@@ -70,7 +70,7 @@ export default function InventoryScreen({setisLogin}) {
               return (
                 <View key={index} style={styles.med_item}>
                   <Text>{item.name}</Text>
-                  <ActionButtons data={item} />
+                  <ActionButtons data={item} refresh_data={get_all_medicine} />
                 </View>
               )
             })
@@ -112,15 +112,15 @@ const styles = StyleSheet.create({
       borderRadius : 10,
       flexDirection : 'row',
       justifyContent : 'space-between',
-      alignItems : 'center'
+      alignItems : 'center',
+      borderColor : 'gray',
     }, 
 
     logout : {
       padding : 5,
       backgroundColor : 'white',
       borderRadius : 5,
-    }
-
+    },
 
 
 })

@@ -2,9 +2,9 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'reac
 import React, { useState } from 'react'
 
 
-export default function DropDown({data, setvalue}) {
+export default function DropDown({data, setvalue , value=""}) {
 
-    const [inputValue, setinputValue] = useState();
+    const [inputValue, setinputValue] = useState(value);
 
     const [showDropDown, setshowDropDown] = useState(false);
 
