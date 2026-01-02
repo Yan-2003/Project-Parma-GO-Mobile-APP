@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'reac
 import React, { useState } from 'react'
 
 
-export default function DropDown({data}) {
+export default function DropDown({data, setvalue}) {
 
     const [inputValue, setinputValue] = useState();
 
@@ -12,8 +12,9 @@ export default function DropDown({data}) {
         setshowDropDown( !showDropDown ? true  : false)
     }
 
-    const handleSelection = (value) =>{
+    const handleSelection = (value, id) =>{
         setinputValue(value)
+        setvalue(id)
         show()
     }
 
@@ -30,7 +31,7 @@ export default function DropDown({data}) {
                     {
                         data?.map((item , index)=>{
                             return (
-                                <TouchableOpacity onPress={()=>handleSelection(item.name)} style={styles.dropdownItems} key={index}><Text>{item?.name}</Text></TouchableOpacity>
+                                <TouchableOpacity onPress={()=>handleSelection(item.name, item.id)} style={styles.dropdownItems} key={index}><Text>{item?.name}</Text></TouchableOpacity>
                             )
                         })
                     }
