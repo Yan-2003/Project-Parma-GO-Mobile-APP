@@ -4,6 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { AuthContext } from '../../context/AuthContext'
 import axios from 'axios'
 import {API_URL} from '@env'
+import ActionButtons from '../../components/ActionButtons'
+import DropDown from '../../components/DropDown'
 
 export default function InventoryScreen({setisLogin}) {
 
@@ -11,6 +13,8 @@ export default function InventoryScreen({setisLogin}) {
 
     const [medicine, setmedicine] = useState([]);
     const [isLoading, setisLoading] = useState(true);
+    const [Pharmacies, setPharmacies] = useState([]);
+    const [PharmacieID, setPharmacieID] = useState(null);
 
     const handdle_logout = () =>{
         logout()
@@ -30,8 +34,20 @@ export default function InventoryScreen({setisLogin}) {
       }
     }
 
+    const get_all_pharma = async () =>{
+      try {
+          const response = await axios.get(API_URL + "/pharmacy/get_pharmacies")
+          console.log(response.data)
+          setPharmacies(response.data)
+      } catch (error) {
+          console.log(error)
+      }
+
+    }
+
     useEffect(() => {
       get_all_medicine()
+      get_all_pharma()
     
       return () => {
         
@@ -42,15 +58,19 @@ export default function InventoryScreen({setisLogin}) {
   return (
     <SafeAreaView style={styles.contianer}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={handdle_logout}><Text>Sign out</Text></TouchableOpacity>
+        <Text style={{ color : 'white', fontWeight: 'bold' }}>Admin Panel</Text>
+        <TouchableOpacity style={styles.logout} onPress={handdle_logout}><Text>Sign out</Text></TouchableOpacity>
       </View>
       <View style={styles.body}>
+        <DropDown data={Pharmacies} setvalue={setPharmacieID} />
+        <Text style={{ fontSize : 20, fontWeight : 'bold', marginBottom : 10, }}>Medicine List</Text>
         <ScrollView>
           {
             medicine.map((item , index)=>{
               return (
-                <View key={index}>
+                <View key={index} style={styles.med_item}>
                   <Text>{item.name}</Text>
+                  <ActionButtons data={item} />
                 </View>
               )
             })
@@ -72,14 +92,35 @@ const styles = StyleSheet.create({
         backgroundColor : 'rgba(168, 97, 219, 1)',
         height : 60,
         borderRadius :10,
-        padding : 10
-
+        padding : 10,
+        flexDirection : 'row',
+        alignItems : 'center',
+        justifyContent : 'space-between'
     },
 
     body : {
+      marginTop : 20,
+      width : '90%',
       flex : 1,
       marginBottom : 60
+    },
+
+    med_item : { 
+      padding : 10,
+      borderWidth : 1,
+      marginBottom : 5,
+      borderRadius : 10,
+      flexDirection : 'row',
+      justifyContent : 'space-between',
+      alignItems : 'center'
+    }, 
+
+    logout : {
+      padding : 5,
+      backgroundColor : 'white',
+      borderRadius : 5,
     }
+
 
 
 })
