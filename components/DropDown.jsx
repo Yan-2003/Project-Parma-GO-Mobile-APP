@@ -13,7 +13,11 @@ export default function DropDown({data, setvalue , value=""}) {
     }
 
     const handleSelection = (value, id) =>{
-        setinputValue(value)
+        if(value != 'Clear'){
+            setinputValue(value)
+        }else{
+            setinputValue('')
+        }
         setvalue(id)
         show()
     }

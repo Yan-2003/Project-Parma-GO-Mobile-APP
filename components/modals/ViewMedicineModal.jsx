@@ -51,9 +51,6 @@ export default function ViewMedicineModal({setisMedModal , isMedModal, medID, se
     try {
       
       const med = await axios.get(API_URL + '/medicine/get_medby_id/' + medID)
-      console.log("MED ID: " + medID)
-
-      console.log("Displaying Meds Data: ", med.data)
       setMedicine(med.data[0])
       getPharmacies(med.data[0].name)
       setisLoading(false)

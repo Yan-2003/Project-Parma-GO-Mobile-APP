@@ -6,8 +6,6 @@ import DropDown from '../DropDown';
 
 export default function AdminEditMedicineModal({data , isModal , setisModal}) {
 
-    console.log("data stock", data.stock)
-
     const [pharmacy, setpharmacy] = useState();
     const [isLoading, setisLoading] = useState(true);
     const [Pharmacies, setPharmacies] = useState([]);
@@ -35,7 +33,6 @@ export default function AdminEditMedicineModal({data , isModal , setisModal}) {
         setisLoading(true)
         try {
             const response = await axios.get(API_URL + '/pharmacy/get_pharmacy_by_id/' + id)
-            console.log(response.data)
             setpharmacy(response.data[0])
             setisLoading(false)
         } catch (error) {
@@ -195,7 +192,7 @@ const styles = StyleSheet.create({
     },
 
     btn_submit  : {
-        backgroundColor: 'rgb(161, 52, 235)',
+        backgroundColor: 'rgba(52, 110, 235, 1)',
         padding : 10,
         borderRadius : 10,
     }

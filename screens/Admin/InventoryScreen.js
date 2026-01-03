@@ -13,7 +13,7 @@ export default function InventoryScreen({setisLogin}) {
 
     const [medicine, setmedicine] = useState([]);
     const [isLoading, setisLoading] = useState(true);
-    const [Pharmacies, setPharmacies] = useState([]);
+    const [Pharmacies, setPharmacies] = useState([{name : "Clear" , id : null}]);
     const [PharmacieID, setPharmacieID] = useState(null);
 
     const handdle_logout = () =>{
@@ -25,7 +25,18 @@ export default function InventoryScreen({setisLogin}) {
       setisLoading(true)
       try {
         const response = await axios.get(API_URL + '/medicine/get_all_medicine')
-        console.log(response.data)
+        setmedicine(response.data)
+        setisLoading(false)
+      } catch (error) {
+        console.log(error)
+        setisLoading(false)
+      }
+    }
+
+    const get_all_medicine_filter = async (id) =>{
+      setisLoading(true)
+      try {
+        const response = await axios.get(API_URL + '/medicine/get_all_medicine/' + id)
         setmedicine(response.data)
         setisLoading(false)
       } catch (error) {
@@ -35,12 +46,15 @@ export default function InventoryScreen({setisLogin}) {
     }
 
     const get_all_pharma = async () =>{
+      setisLoading(true)
       try {
           const response = await axios.get(API_URL + "/pharmacy/get_pharmacies")
-          console.log(response.data)
-          setPharmacies(response.data)
+          setPharmacies(prev => [...prev, ...response.data])
+          console.log("all pharmacies: ", Pharmacies)
+          setisLoading(false)
       } catch (error) {
           console.log(error)
+          setisLoading(false)
       }
 
     }
@@ -55,6 +69,17 @@ export default function InventoryScreen({setisLogin}) {
     }, []);
 
 
+    useEffect(() => {
+      if(PharmacieID != null){
+        get_all_medicine_filter(PharmacieID)
+      }
+    
+      return () => {
+        
+      }
+    }, [PharmacieID]);
+
+
   return (
     <SafeAreaView style={styles.contianer}>
       <View style={styles.header}>
@@ -66,6 +91,8 @@ export default function InventoryScreen({setisLogin}) {
         <Text style={{ fontSize : 20, fontWeight : 'bold', marginBottom : 10, }}>Medicine List</Text>
         <ScrollView>
           {
+            isLoading ? <Text>Loading.....</Text>
+            :
             medicine.map((item , index)=>{
               return (
                 <View key={index} style={styles.med_item}>

@@ -12,7 +12,6 @@ export default function AdminViewMedicineModal({data , isModal , setisModal}) {
         setisLoading(true)
         try {
             const response = await axios.get(API_URL + '/pharmacy/get_pharmacy_by_id/' + id)
-            console.log(response.data)
             setpharmacy(response.data[0])
             setisLoading(false)
         } catch (error) {
