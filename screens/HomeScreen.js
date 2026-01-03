@@ -6,6 +6,7 @@ import axios from 'axios';
 import {API_URL} from '@env'
 import Card from '../components/Card';
 import { AuthContext } from '../context/AuthContext';
+import * as Location from 'expo-location';
 
 export default function HomeScreen({setisLogin}) {
 
@@ -16,6 +17,63 @@ export default function HomeScreen({setisLogin}) {
   const [countMed, setcountMed] = useState(0);
   const [countPharma, setcountPharma] = useState(0);
   const [openPharma, setopenPharma] = useState(0);
+  const [userLocation, setuserLocation] = useState(null);
+  const [isLoading, setisLoading] = useState(false);
+  const [nearestPharmacy, setNearestPharmacy] = useState(null);
+
+
+  const getDistance = (lat1, lon1, lat2, lon2) => {
+  const toRad = (value) => (value * Math.PI) / 180;
+
+  const R = 6371; // Earth radius in KM
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+
+  const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c * 1000; // meters
+  };
+
+
+  const nearest_pharmacy = async () => {
+    if (!userLocation) return;
+
+    setisLoading(true);
+    try {
+      const result = await axios.get(`${API_URL}/pharmacy/get_pharmacies`);
+      const pharmacies = result.data;
+
+      const withDistance = pharmacies.map(pharma => ({
+        ...pharma,
+        distance: getDistance(
+          userLocation.latitude,
+          userLocation.longitude,
+          pharma.latitude,
+          pharma.longitude
+        )
+      }));
+
+      // Sort by nearest
+      withDistance.sort((a, b) => a.distance - b.distance);
+
+      // Nearest pharmacy
+      console.log("nearest pharmacy", withDistance[0])
+
+      setNearestPharmacy(withDistance[0]);
+
+    } catch (error) {
+      console.log('Error fetching pharmacies:', error);
+    } finally {
+      setisLoading(false);
+    }
+  };
 
   const get_all_med_count = async () =>{
     try {
@@ -62,6 +120,33 @@ export default function HomeScreen({setisLogin}) {
     }
   }, []);
 
+  useEffect(() => {
+      (async () => {
+        setisLoading(true)
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          setErrorMsg('Permission to access location was denied');
+          Alert.alert('Permission Denied', 'Please enable location permissions in settings.');
+          return;
+        }
+  
+        let currentLocation = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.High,
+        });
+        setuserLocation(currentLocation.coords);
+        setisLoading(false)
+      })();
+    }, []);
+
+
+  useEffect(() => {
+      if(userLocation) {
+        nearest_pharmacy()
+      }  
+    return () => {
+      
+    }
+  }, [userLocation]);
 
   return (
     <SafeAreaView style={styles.container} >
@@ -88,9 +173,39 @@ export default function HomeScreen({setisLogin}) {
             <View style={{ width : '100%' , flexDirection : 'row', gap : 10 , justifyContent : 'space-between' , marginBottom : 10}}>
               <Card title={"Still Open Pharamcies 👨🏻‍⚕️"} data={openPharma} size='100%' color='rgb(240, 132, 198)' /> 
             </View>
-            <View style={{ gap : 10 }}>
-              <Text style={{ fontSize : 15 , fontWeight : 'bold' }}>Recent Pharmacy</Text>
-              <MapView style={{ width : '100%' , height : 200 , borderRadius : 20}} /> 
+            <View style={{ gap : 10, marginTop : 10 }}>
+              <Text style={{ fontSize : 15 , fontWeight : 'bold' }}>Nearest Pharmacy In Your Location</Text>
+              {
+                isLoading || !nearestPharmacy ? <Text>Loading Map....</Text>
+                :
+                <MapView
+                  scrollEnabled={false}
+                  zoomEnabled={false}
+                  rotateEnabled={false}
+                  pitchEnabled={false}
+                  initialRegion={{
+                    latitude: nearestPharmacy.latitude,
+                    longitude: nearestPharmacy.longitude,
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01,
+                  }}
+                  style={{ width : '100%' , height : 200 , borderRadius : 20}}>
+                    <Marker
+                        coordinate={{
+                          latitude: parseFloat(nearestPharmacy.latitude),
+                          longitude: parseFloat(nearestPharmacy.longitude),
+                        }}
+                        title={nearestPharmacy.name}
+                        description={nearestPharmacy.address || 'Pharmacy location'}
+                      >
+                      <Image
+                        source={require('../assets/imgs/drugstore.png')}
+                        style={{ width: 40, height: 40 }} 
+                        resizeMode="contain"
+                      />
+                    </Marker>
+                  </MapView> 
+                  }
             </View>
           </ScrollView>
           :
