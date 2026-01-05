@@ -1,12 +1,18 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useContext } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView, StyleSheet, Image, TextInput } from 'react-native';
 import { Camera, CameraView } from 'expo-camera';
 import axios from 'axios';
 import { API_URL} from '@env'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ViewMedicineModal from '../components/modals/ViewMedicineModal';
+import { AuthContext } from '../context/AuthContext';
+import SearchHistoryModal from '../components/modals/SearchHistoryModal';
+
 
 export default function CameraScreen({ setisScreen , setRouteCoords }) {
+
+
+  const {user_id} = useContext(AuthContext)
   const cameraRef = useRef(null);
   const [hasPermission, setHasPermission] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -15,6 +21,27 @@ export default function CameraScreen({ setisScreen , setRouteCoords }) {
   const [meds, setmeds] = useState([]);
   const [isMedModal, setisMedModal] = useState(false);
   const [medsID, setmedsID] = useState();
+  const [isSearchModal, setisSearchModal] = useState(false);
+
+
+  const add_search_history = async (search_history) =>{
+    console.log("size of input: ", (search_history.trim()).length)
+    if((search_history.trim()).length > 0){
+      try {
+        const response = await axios.post(API_URL + '/medicine/add_search_history', {
+          user_id : user_id,
+          search : search_history
+        })
+  
+        console.log(response)
+  
+      } catch (error) {
+          console.log(error)
+      }
+    }
+  }
+
+
 
   useEffect(() => {
     (async () => {
@@ -88,6 +115,7 @@ export default function CameraScreen({ setisScreen , setRouteCoords }) {
 
     try {
        const response = await axios.get(API_URL  + "/medicine/get_pharmacy_meds/search?input=" + capturedText)
+       add_search_history(capturedText)
        setmeds(response.data)
        setLoading(false)
     } catch (error) {
@@ -99,6 +127,7 @@ export default function CameraScreen({ setisScreen , setRouteCoords }) {
   return (
     <SafeAreaView style={styles.container}>
       <ViewMedicineModal setisMedModal={setisMedModal} isMedModal={isMedModal} medID={medsID} setisScreen={setisScreen}  setRouteCoords={setRouteCoords}/>
+      <SearchHistoryModal setshowModal={setisSearchModal} showModal={isSearchModal} setcaptureText={setCapturedText} searchMed={searchMed} />
       <View>
         {loading ? (
           <View style={styles.loadingContainer}>
@@ -124,7 +153,10 @@ export default function CameraScreen({ setisScreen , setRouteCoords }) {
         <>
           <View style={styles.searchMedContainer} >
             <View style={styles.searcMedContent}>
-              <TextInput style={styles.textContainer} value={capturedText} onChangeText={(text)=> setCapturedText(text) } autoCapitalize="none" autoCorrect={false} />
+              <View style={{ flexDirection : 'row', width : '100%', justifyContent : 'space-between', alignItems : 'center' }}>
+                <TextInput style={styles.textContainer} value={capturedText} onChangeText={(text)=> setCapturedText(text) } autoCapitalize="none" autoCorrect={false} />
+                <TouchableOpacity onPress={()=>setisSearchModal(true)}><Image style={{ width : 30, height : 30 }} source={require('../assets/imgs/history.png')} /></TouchableOpacity>
+              </View>
               <TouchableOpacity onPress={()=> searchMed()} style={styles.search_med_btn}><Text style={styles.text_light}>Search Scan Text</Text></TouchableOpacity>
             </View>
             <ScrollView style={styles.searched_meds_container} >
@@ -187,10 +219,12 @@ const styles = StyleSheet.create({
     width : 34,
     height : 34,
   },
-  textContainer: { 
+  textContainer: {
+    width : '90%', 
     padding: 10, 
     borderWidth : 1,
     borderRadius : 10,
+    borderColor : 'gray'
   },
   loadingContainer: { 
     flex: 1, 

@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }) => {
   const [full_name, setfull_name] = useState();
   const [loading, setLoading] = useState(true);
   const [user_role, setuser_role] = useState(null);
+  const [user_id, setuser_id] = useState(null);
 
   useEffect(() => {
     const loadToken = async () => {
@@ -55,6 +56,7 @@ export const AuthProvider = ({ children }) => {
         setUsername(username); 
         setfull_name(request.data.name)
         setuser_role(request.data?.user_role)
+        setuser_id(request.data?.id)
         return true;
       } 
       catch (error) {
@@ -72,7 +74,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ userToken, username, user_role, full_name, login, logout, loading }}>
+    <AuthContext.Provider value={{ userToken,user_id, username, user_role, full_name, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
