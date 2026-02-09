@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect, useContext } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView, StyleSheet, Image, TextInput } from 'react-native';
 import { Camera, CameraView } from 'expo-camera';
+import * as ImageManipulator from 'expo-image-manipulator';
 import axios from 'axios';
 import { API_URL} from '@env'
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -16,6 +17,7 @@ export default function CameraScreen({ setisScreen , setRouteCoords }) {
   const cameraRef = useRef(null);
   const [hasPermission, setHasPermission] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [previewSize, setPreviewSize] = useState({ width: 0, height: 0 });
   const [capturedText, setCapturedText] = useState('');
   const [isSearchMed, setisSearchMed] = useState(false);
   const [meds, setmeds] = useState([]);
@@ -75,8 +77,34 @@ export default function CameraScreen({ setisScreen , setRouteCoords }) {
     setLoading(true);
 
     try {
-      const photo = await cameraRef.current.takePictureAsync();
-      const localUri = photo.uri;
+      const photo = await cameraRef.current.takePictureAsync({ quality: 1 });
+
+      let localUri = photo.uri;
+
+      // If we know the preview size (layout measured), crop the captured photo to the overlay box
+      if (previewSize.width && previewSize.height) {
+        const overlayW = Math.round(previewSize.width * 0.9);
+        const overlayH = Math.round(overlayW * 0.6);
+        const overlayLeft = Math.round((previewSize.width - overlayW) / 2);
+        const overlayTop = Math.round((previewSize.height - overlayH) / 2);
+
+        const scaleX = photo.width / previewSize.width;
+        const scaleY = photo.height / previewSize.height;
+
+        const crop = {
+          originX: Math.max(0, Math.round(overlayLeft * scaleX)),
+          originY: Math.max(0, Math.round(overlayTop * scaleY)),
+          width: Math.max(0, Math.round(overlayW * scaleX)),
+          height: Math.max(0, Math.round(overlayH * scaleY)),
+        };
+
+        try {
+          const manipulated = await ImageManipulator.manipulateAsync(localUri, [{ crop }], { compress: 1, format: ImageManipulator.SaveFormat.JPEG });
+          localUri = manipulated.uri;
+        } catch (err) {
+          console.log('Image manipulation failed, uploading full photo', err);
+        }
+      }
 
       const formData = new FormData();
       formData.append('image', {
@@ -92,7 +120,7 @@ export default function CameraScreen({ setisScreen , setRouteCoords }) {
       });
 
       setCapturedText(response.data.text || 'No text detected.');
-      searchMed()
+      searchMed();
     } catch (error) {
       console.error(error);
       setCapturedText('Error processing image.');
@@ -136,9 +164,41 @@ export default function CameraScreen({ setisScreen , setRouteCoords }) {
           </View>
         ) : !isSearchMed ? (
           <>
-            <View style={styles.camera_container}>
+            <View
+              style={styles.camera_container}
+              onLayout={(e) => {
+                const { width, height } = e.nativeEvent.layout;
+                setPreviewSize({ width, height });
+              }}
+            >
               <Image style={styles.scan_animation} source={require('../assets/Scan Matrix.gif')} />
               <CameraView ref={cameraRef} style={styles.camera} />
+
+              {/* Crop overlay: center box with shaded surroundings */}
+              {previewSize.width > 0 && (
+                (() => {
+                  const overlayW = Math.round(previewSize.width * 0.6);
+                  const overlayH = Math.round(overlayW * 0.3);
+                  const overlayLeft = Math.round((previewSize.width - overlayW) / 2);
+                  const overlayTop = Math.round((previewSize.height - overlayH) / 2);
+                  return (
+                    <>
+                      <View style={[styles.overlay, { top: 0, left: 0, right: 0, height: overlayTop }]} pointerEvents="none" />
+                      <View style={[styles.overlay, { top: overlayTop + overlayH, left: 0, right: 0, bottom: 0 }]} pointerEvents="none" />
+                      <View style={[styles.overlay, { top: overlayTop, left: 0, width: overlayLeft, height: overlayH }]} pointerEvents="none" />
+                      <View style={[styles.overlay, { top: overlayTop, left: overlayLeft + overlayW, right: 0, height: overlayH }]} pointerEvents="none" />
+
+                      <View
+                        style={[
+                          styles.cropBox,
+                          { width: overlayW, height: overlayH, left: overlayLeft, top: overlayTop },
+                        ]}
+                        pointerEvents="none"
+                      />
+                    </>
+                  );
+                })()
+              )}
             </View>
             <View style={styles.buttonContainer}>
 
@@ -247,8 +307,20 @@ const styles = StyleSheet.create({
     width : '100%',
     height : '100%',
     position : "absolute",
-    zIndex : 99999,
-    backgroundColor : 'rgba(0, 0, 0, 0.56)'
+    zIndex : 99999
+  },
+
+  overlay: {
+    position: 'absolute',
+    backgroundColor: 'rgba(0,0,0,0.45)'
+  },
+
+  cropBox: {
+    position: 'absolute',
+    borderWidth: 2,
+    borderColor: 'rgb(161, 52, 235)',
+    borderRadius: 8,
+    backgroundColor: 'transparent'
   },
 
   scan_again_btn : {

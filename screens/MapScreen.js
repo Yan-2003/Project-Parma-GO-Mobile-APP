@@ -173,7 +173,7 @@ export default function MapScreen({location , setLocation , routeCoords , setRou
               }
 
             <Polyline coordinates={routeCoords} strokeColor='red' strokeWidth={5} /> 
-            <View style={styles.search_bar}>
+{/*             <View style={styles.search_bar}>
               <TextInput
                 value={SearchBar}
                 onChangeText={text => setSearchBar(text)}
@@ -183,7 +183,7 @@ export default function MapScreen({location , setLocation , routeCoords , setRou
               <TouchableOpacity style={styles.search_btn}>
                 <Image style={styles.icon} source={require('../assets/imgs/search.png')} />
               </TouchableOpacity>
-            </View> 
+            </View>  */}
           </MapView>
 
             : <></>
