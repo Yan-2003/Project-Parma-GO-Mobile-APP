@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useContext } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView, StyleSheet, Image, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView, StyleSheet, Image, TextInput, Alert } from 'react-native';
 import { Camera, CameraView } from 'expo-camera';
 import * as ImageManipulator from 'expo-image-manipulator';
 import axios from 'axios';
@@ -56,22 +56,6 @@ export default function CameraScreen({ setisScreen , setRouteCoords }) {
     })();
   }, []);
 
-  if (hasPermission === null) {
-    return (
-      <View style={styles.centered}>
-        <Text>Requesting camera permission...</Text>
-      </View>
-    );
-  }
-
-  if (hasPermission === false) {
-    return (
-      <View style={styles.centered}>
-        <Text>No access to camera</Text>
-      </View>
-    );
-  }
-
   const takePicture = async () => {
     if (!cameraRef.current) return;
     setLoading(true);
@@ -81,10 +65,10 @@ export default function CameraScreen({ setisScreen , setRouteCoords }) {
 
       let localUri = photo.uri;
 
-      // If we know the preview size (layout measured), crop the captured photo to the overlay box
+      // Crop the captured photo to match the visible crop box (60% width, 30% height, centered)
       if (previewSize.width && previewSize.height) {
-        const overlayW = Math.round(previewSize.width * 0.9);
-        const overlayH = Math.round(overlayW * 0.6);
+        const overlayW = Math.round(previewSize.width * 0.6);
+        const overlayH = Math.round(overlayW * 0.3);
         const overlayLeft = Math.round((previewSize.width - overlayW) / 2);
         const overlayTop = Math.round((previewSize.height - overlayH) / 2);
 
@@ -119,8 +103,12 @@ export default function CameraScreen({ setisScreen , setRouteCoords }) {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      setCapturedText(response.data.text || 'No text detected.');
-      searchMed();
+      if(response.data.text != null){
+        setCapturedText(response.data.text || ' ');
+        searchMed(response.data.text)
+      }else{
+        Alert.alert("Please Try to Scan Again")
+      }
     } catch (error) {
       console.error(error);
       setCapturedText('Error processing image.');
@@ -136,14 +124,14 @@ export default function CameraScreen({ setisScreen , setRouteCoords }) {
   }
 
 
-  const searchMed = async () => {
+  const searchMed = async (text) => {
 
     setLoading(true)
     setmeds([])
 
     try {
-       const response = await axios.get(API_URL  + "/medicine/get_pharmacy_meds/search?input=" + capturedText)
-       add_search_history(capturedText)
+       const response = await axios.get(API_URL  + "/medicine/get_pharmacy_meds/search?input=" + text)
+       add_search_history(text)
        setmeds(response.data)
        setLoading(false)
     } catch (error) {
@@ -154,101 +142,113 @@ export default function CameraScreen({ setisScreen , setRouteCoords }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ViewMedicineModal setisMedModal={setisMedModal} isMedModal={isMedModal} medID={medsID} setisScreen={setisScreen}  setRouteCoords={setRouteCoords}/>
-      <SearchHistoryModal setshowModal={setisSearchModal} showModal={isSearchModal} setcaptureText={setCapturedText} searchMed={searchMed} />
-      <View>
-        {loading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="rgb(161, 52, 235)" />
-            <Text>Processing...</Text>
-          </View>
-        ) : !isSearchMed ? (
-          <>
-            <View
-              style={styles.camera_container}
-              onLayout={(e) => {
-                const { width, height } = e.nativeEvent.layout;
-                setPreviewSize({ width, height });
-              }}
-            >
-              <Image style={styles.scan_animation} source={require('../assets/Scan Matrix.gif')} />
-              <CameraView ref={cameraRef} style={styles.camera} />
-
-              {/* Crop overlay: center box with shaded surroundings */}
-              {previewSize.width > 0 && (
-                (() => {
-                  const overlayW = Math.round(previewSize.width * 0.6);
-                  const overlayH = Math.round(overlayW * 0.3);
-                  const overlayLeft = Math.round((previewSize.width - overlayW) / 2);
-                  const overlayTop = Math.round((previewSize.height - overlayH) / 2);
-                  return (
-                    <>
-                      <View style={[styles.overlay, { top: 0, left: 0, right: 0, height: overlayTop }]} pointerEvents="none" />
-                      <View style={[styles.overlay, { top: overlayTop + overlayH, left: 0, right: 0, bottom: 0 }]} pointerEvents="none" />
-                      <View style={[styles.overlay, { top: overlayTop, left: 0, width: overlayLeft, height: overlayH }]} pointerEvents="none" />
-                      <View style={[styles.overlay, { top: overlayTop, left: overlayLeft + overlayW, right: 0, height: overlayH }]} pointerEvents="none" />
-
-                      <View
-                        style={[
-                          styles.cropBox,
-                          { width: overlayW, height: overlayH, left: overlayLeft, top: overlayTop },
-                        ]}
-                        pointerEvents="none"
-                      />
-                    </>
-                  );
-                })()
-              )}
-            </View>
-            <View style={styles.buttonContainer}>
-
-              <TouchableOpacity onPress={takePicture} style={styles.captureButton}>
-                <Image style={styles.captureButtonLogo} source={require('../assets/imgs/camera.png')}  />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={()=> setisSearchMed(true) } style={styles.search_med_button_capcutre} ><Text style={styles.text_light} >Search Medicine</Text></TouchableOpacity> 
-            </View>
-          </>
-        ) : 
-        
+      {hasPermission === null ? (
+        <View style={styles.centered}>
+          <Text>Requesting camera permission...</Text>
+        </View>
+      ) : hasPermission === false ? (
+        <View style={styles.centered}>
+          <Text>No access to camera</Text>
+        </View>
+      ) : (
         <>
-          <View style={styles.searchMedContainer} >
-            <View style={styles.searcMedContent}>
-              <View style={{ flexDirection : 'row', width : '100%', justifyContent : 'space-between', alignItems : 'center' }}>
-                <TextInput style={styles.textContainer} value={capturedText} onChangeText={(text)=> setCapturedText(text) } autoCapitalize="none" autoCorrect={false} />
-                <TouchableOpacity onPress={()=>setisSearchModal(true)}><Image style={{ width : 30, height : 30 }} source={require('../assets/imgs/history.png')} /></TouchableOpacity>
+          <ViewMedicineModal setisMedModal={setisMedModal} isMedModal={isMedModal} medID={medsID} setisScreen={setisScreen}  setRouteCoords={setRouteCoords}/>
+          <SearchHistoryModal setshowModal={setisSearchModal} showModal={isSearchModal} setcaptureText={setCapturedText} searchMed={searchMed} />
+          <View>
+            {loading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="rgb(161, 52, 235)" />
+                <Text>Processing...</Text>
               </View>
-              <TouchableOpacity onPress={()=> searchMed()} style={styles.search_med_btn}><Text style={styles.text_light}>Search Scan Text</Text></TouchableOpacity>
-            </View>
-            <ScrollView style={styles.searched_meds_container} >
-              {
-                loading ? (
-                  <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color="rgb(161, 52, 235)" />
-                    <Text>Searching Medicine....</Text>
+            ) : !isSearchMed ? (
+              <>
+                <View
+                  style={styles.camera_container}
+                  onLayout={(e) => {
+                    const { width, height } = e.nativeEvent.layout;
+                    setPreviewSize({ width, height });
+                  }}
+                >
+                  <Image style={styles.scan_animation} source={require('../assets/Scan Matrix.gif')} />
+                  <CameraView ref={cameraRef} style={styles.camera} />
+
+                  {/* Crop overlay: center box with shaded surroundings */}
+                  {previewSize.width > 0 && (
+                    (() => {
+                      const overlayW = Math.round(previewSize.width * 0.6);
+                      const overlayH = Math.round(overlayW * 0.3);
+                      const overlayLeft = Math.round((previewSize.width - overlayW) / 2);
+                      const overlayTop = Math.round((previewSize.height - overlayH) / 2);
+                      return (
+                        <>
+                          <View style={[styles.overlay, { top: 0, left: 0, right: 0, height: overlayTop }]} pointerEvents="none" />
+                          <View style={[styles.overlay, { top: overlayTop + overlayH, left: 0, right: 0, bottom: 0 }]} pointerEvents="none" />
+                          <View style={[styles.overlay, { top: overlayTop, left: 0, width: overlayLeft, height: overlayH }]} pointerEvents="none" />
+                          <View style={[styles.overlay, { top: overlayTop, left: overlayLeft + overlayW, right: 0, height: overlayH }]} pointerEvents="none" />
+
+                          <View
+                            style={[
+                              styles.cropBox,
+                              { width: overlayW, height: overlayH, left: overlayLeft, top: overlayTop },
+                            ]}
+                            pointerEvents="none"
+                          />
+                        </>
+                      );
+                    })()
+                  )}
+                </View>
+                <View style={styles.buttonContainer}>
+
+                  <TouchableOpacity onPress={takePicture} style={styles.captureButton}>
+                    <Image style={styles.captureButtonLogo} source={require('../assets/imgs/camera.png')}  />
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={()=> setisSearchMed(true) } style={styles.search_med_button_capcutre} ><Text style={styles.text_light} >Search Medicine</Text></TouchableOpacity> 
+                </View>
+              </>
+            ) : 
+            
+            <>
+              <View style={styles.searchMedContainer} >
+                <View style={styles.searcMedContent}>
+                  <View style={{ flexDirection : 'row', width : '100%', justifyContent : 'space-between', alignItems : 'center' }}>
+                    <TextInput style={styles.textContainer} value={capturedText} onChangeText={(text)=> setCapturedText(text) } autoCapitalize="none" autoCorrect={false} />
+                    <TouchableOpacity onPress={()=>setisSearchModal(true)}><Image style={{ width : 30, height : 30 }} source={require('../assets/imgs/history.png')} /></TouchableOpacity>
                   </View>
-                )
-                : meds.map((medicine , index)=>{
-                  return (
-                    <TouchableOpacity onPress={()=>viewMedByItem(medicine.id)} style={styles.item_medicine} key={index}>
-                      <View style={{ justifyContent : 'center' , alignItems : 'flex-start' }} >
-                        <Text style={{ fontSize : 15 , fontWeight : 'bold' }} >{medicine.name}</Text>
-                        <Text style={{ fontSize : 10 }} >{medicine.strength}</Text>
-                        <Text>{medicine.dosage_form}</Text>
-                        <Text style={{ backgroundColor : 'rgb(161, 52, 235)' , color : 'white' , padding : 5, borderRadius : 5}}>{medicine.pharma_name}</Text>
+                  <TouchableOpacity onPress={()=> searchMed(capturedText)} style={styles.search_med_btn}><Text style={styles.text_light}>Search Scan Text</Text></TouchableOpacity>
+                </View>
+                <ScrollView style={styles.searched_meds_container} >
+                  {
+                    loading ? (
+                      <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color="rgb(161, 52, 235)" />
+                        <Text>Searching Medicine....</Text>
                       </View>
-                      <View style={styles.price}>
-                        <Text style={styles.price_text} >₱{medicine.price}</Text>
-                      </View>
-                    </TouchableOpacity>
-                  )
-                })
-              }
-            </ScrollView>
-            <TouchableOpacity onPress={()=>setisSearchMed(false)}  style={styles.scan_again_btn} ><Text style={styles.text_light} >Scan Again</Text></TouchableOpacity>
+                    )
+                    : meds.map((medicine , index)=>{
+                      return (
+                        <TouchableOpacity onPress={()=>viewMedByItem(medicine.id)} style={styles.item_medicine} key={index}>
+                          <View style={{ justifyContent : 'center' , alignItems : 'flex-start' }} >
+                            <Text style={{ fontSize : 15 , fontWeight : 'bold' }} >{medicine.name}</Text>
+                            <Text style={{ fontSize : 10 }} >{medicine.strength}</Text>
+                            <Text>{medicine.dosage_form}</Text>
+                            <Text style={{ backgroundColor : 'rgb(161, 52, 235)' , color : 'white' , padding : 5, borderRadius : 5}}>{medicine.pharma_name}</Text>
+                          </View>
+                          <View style={styles.price}>
+                            <Text style={styles.price_text} >₱{medicine.price}</Text>
+                          </View>
+                        </TouchableOpacity>
+                      )
+                    })
+                  }
+                </ScrollView>
+                <TouchableOpacity onPress={()=>setisSearchMed(false)}  style={styles.scan_again_btn} ><Text style={styles.text_light} >Scan Again</Text></TouchableOpacity>
+              </View>
+            </>      
+            }
           </View>
-        </>      
-        }
-      </View>
+        </>
+      )}
     </SafeAreaView>
   );
 }

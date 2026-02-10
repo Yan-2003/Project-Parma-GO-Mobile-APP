@@ -75,27 +75,7 @@ export default function HomeScreen({setisLogin}) {
     }
   };
 
-  const get_all_med_count = async () =>{
-    try {
-      const request = await axios.get(API_URL + '/dashboard/get_all_med_count')
-      console.log(request.data)
-      return setcountMed(request.data[0].count_med)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-
-  const get_all_pharma_count = async () =>{
-    try {
-      const request = await axios.get(API_URL + '/dashboard/get_all_pharma_count')
-      console.log(request.data)
-      return setcountPharma(request.data[0].count_pharma)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
+  
   const get_all_open_pharma_count = async () =>{
     try {
       const request = await axios.get(API_URL + '/dashboard/get_all_open_pharma_count')
@@ -105,20 +85,33 @@ export default function HomeScreen({setisLogin}) {
       console.log(error)
     }
   }
-
+  
+  const get_all_pharma_count = async () =>{
+    try {
+      const request = await axios.get(API_URL + '/dashboard/get_all_pharma_count')
+      console.log(request.data)
+      get_all_open_pharma_count()
+      return setcountPharma(request.data[0].count_pharma)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  
+  
+  const get_all_med_count = async () =>{
+    try {
+      const request = await axios.get(API_URL + '/dashboard/get_all_med_count')
+      console.log(request.data)
+      get_all_pharma_count()
+      return setcountMed(request.data[0].count_med)
+    } catch (error) {
+      console.log(error)
+    }
+  }
   const handdle_logout = async () =>{
     await logout()
     setisLogin(false)
   }
-
-  useEffect(() => {
-    get_all_med_count()
-    get_all_pharma_count()
-    get_all_open_pharma_count()
-    return () => {
-      
-    }
-  }, []);
 
   useEffect(() => {
       (async () => {
@@ -133,6 +126,7 @@ export default function HomeScreen({setisLogin}) {
         let currentLocation = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.High,
         });
+        get_all_med_count()
         setuserLocation(currentLocation.coords);
         setisLoading(false)
       })();
@@ -175,7 +169,7 @@ export default function HomeScreen({setisLogin}) {
             </View>
             <View style={{ gap : 10, marginTop : 10 }}>
               <Text style={{ fontSize : 15 , fontWeight : 'bold' }}>Nearest Pharmacy In Your Location</Text>
-             {/*  {
+              {
                 isLoading || !nearestPharmacy ? <Text>Loading Map....</Text>
                 :
                 <MapView
@@ -205,7 +199,7 @@ export default function HomeScreen({setisLogin}) {
                       />
                     </Marker>
                   </MapView> 
-                  } */}
+                  }
             </View>
           </ScrollView>
           :
