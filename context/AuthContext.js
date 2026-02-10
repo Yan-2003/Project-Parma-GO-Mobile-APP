@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-//import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { API_URL } from '@env';
 
@@ -23,17 +23,17 @@ export const AuthProvider = ({ children }) => {
     const loadSession = async () => {
       try {
 
-/*         const token = await AsyncStorage.getItem('userToken');
+        const token = await AsyncStorage.getItem('userToken');
         const savedUsername = await AsyncStorage.getItem('username');
         const savedName = await AsyncStorage.getItem('full_name');
         const savedRole = await AsyncStorage.getItem('user_role');
-        const savedId = await AsyncStorage.getItem('user_id'); */
+        const savedId = await AsyncStorage.getItem('user_id');
 
-/*         if (token) setUserToken(token);
+        if (token) setUserToken(token);
         if (savedUsername) setUsername(savedUsername);
         if (savedName) setFullName(savedName);
         if (savedRole) setUserRole(savedRole);
-        if (savedId) setUserId(Number(savedId)); */
+        if (savedId) setUserId(Number(savedId));
 
       } catch (err) {
         console.log("Load session error:", err);
@@ -111,14 +111,14 @@ export const AuthProvider = ({ children }) => {
       /* ---------- SAVE SESSION ---------- */
 
       const token = 'user_token'; // You can replace later with real JWT
-/* 
+
       await AsyncStorage.multiSet([
         ['userToken', token],
         ['username', String(data.username)],
         ['full_name', String(data.name || '')],
         ['user_role', String(data.user_role || 'user')],
         ['user_id', String(data.id)],
-      ]); */
+      ]);
 
 
       /* ---------- UPDATE STATE ---------- */

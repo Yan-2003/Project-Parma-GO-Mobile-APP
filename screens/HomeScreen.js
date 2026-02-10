@@ -175,7 +175,7 @@ export default function HomeScreen({setisLogin}) {
             </View>
             <View style={{ gap : 10, marginTop : 10 }}>
               <Text style={{ fontSize : 15 , fontWeight : 'bold' }}>Nearest Pharmacy In Your Location</Text>
-              {
+             {/*  {
                 isLoading || !nearestPharmacy ? <Text>Loading Map....</Text>
                 :
                 <MapView
@@ -205,7 +205,7 @@ export default function HomeScreen({setisLogin}) {
                       />
                     </Marker>
                   </MapView> 
-                  }
+                  } */}
             </View>
           </ScrollView>
           :
