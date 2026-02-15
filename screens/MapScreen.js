@@ -104,6 +104,17 @@ export default function MapScreen({location , setLocation , routeCoords , setRou
     );
   }
 
+  // Ensure location values are valid numbers (required for Android)
+  const initialRegion = {
+    latitude: parseFloat(location.latitude) || 0,
+    longitude: parseFloat(location.longitude) || 0,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  };
+
+  // Validate initialRegion before rendering MapView
+  const isValidRegion = initialRegion.latitude !== 0 && initialRegion.longitude !== 0;
+
   return (
     <View style={styles.container}>
       {
@@ -134,17 +145,12 @@ export default function MapScreen({location , setLocation , routeCoords , setRou
         : <></>
       }
       {
-        !isLoading ? 
+        !isLoading && isValidRegion ? 
           <MapView
             style={styles.map}
             showsUserLocation={true}
             followsUserLocation={false}
-            initialRegion={{
-              latitude: location.latitude,
-              longitude: location.longitude,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
-            }}
+            initialRegion={initialRegion}
           >
               {!isLoading ?
                 Pharmacies.map((pharmacy, index) =>
@@ -196,11 +202,11 @@ const styles = StyleSheet.create({
   container: { 
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'stretch',
   },
   map: { 
-    width: 400,
-    height: 900,
+    flex: 1,
+    width: '100%',
   },
   loaderContainer: {
     flex: 1,

@@ -42,8 +42,8 @@ export default function HomeScreen({setisLogin}) {
   };
 
 
-  const nearest_pharmacy = async () => {
-    if (!userLocation) return;
+  const nearest_pharmacy = async (location) => {
+    //if (!userLocation) return;
 
     setisLoading(true);
     try {
@@ -53,8 +53,8 @@ export default function HomeScreen({setisLogin}) {
       const withDistance = pharmacies.map(pharma => ({
         ...pharma,
         distance: getDistance(
-          userLocation.latitude,
-          userLocation.longitude,
+          location.latitude,
+          location.longitude,
           pharma.latitude,
           pharma.longitude
         )
@@ -128,19 +128,10 @@ export default function HomeScreen({setisLogin}) {
         });
         get_all_med_count()
         setuserLocation(currentLocation.coords);
+        nearest_pharmacy(currentLocation.coords)
         setisLoading(false)
       })();
     }, []);
-
-
-  useEffect(() => {
-      if(userLocation) {
-        nearest_pharmacy()
-      }  
-    return () => {
-      
-    }
-  }, [userLocation]);
 
   return (
     <SafeAreaView style={styles.container} >
@@ -178,8 +169,8 @@ export default function HomeScreen({setisLogin}) {
                   rotateEnabled={false}
                   pitchEnabled={false}
                   initialRegion={{
-                    latitude: nearestPharmacy.latitude,
-                    longitude: nearestPharmacy.longitude,
+                    latitude: parseFloat(nearestPharmacy.latitude),
+                    longitude: parseFloat(nearestPharmacy.longitude),
                     latitudeDelta: 0.01,
                     longitudeDelta: 0.01,
                   }}

@@ -25,6 +25,8 @@ export default function CameraScreen({ setisScreen , setRouteCoords }) {
   const [medsID, setmedsID] = useState();
   const [isSearchModal, setisSearchModal] = useState(false);
 
+  const [photo, setphoto] = useState();
+
 
   const add_search_history = async (search_history) =>{
     console.log("size of input: ", (search_history.trim()).length)
@@ -57,66 +59,86 @@ export default function CameraScreen({ setisScreen , setRouteCoords }) {
   }, []);
 
   const takePicture = async () => {
-    if (!cameraRef.current) return;
-    setLoading(true);
+    if (cameraRef.current) {
+      try {
+        const photoData = await cameraRef.current.takePictureAsync({
+          quality: 1,
+          skipProcessing: false, // IMPORTANT for Android
+        });
 
-    try {
-      const photo = await cameraRef.current.takePictureAsync({ quality: 1 });
-
-      let localUri = photo.uri;
-
-      // Crop the captured photo to match the visible crop box (60% width, 30% height, centered)
-      if (previewSize.width && previewSize.height) {
-        const overlayW = Math.round(previewSize.width * 0.6);
-        const overlayH = Math.round(overlayW * 0.3);
-        const overlayLeft = Math.round((previewSize.width - overlayW) / 2);
-        const overlayTop = Math.round((previewSize.height - overlayH) / 2);
-
-        const scaleX = photo.width / previewSize.width;
-        const scaleY = photo.height / previewSize.height;
-
-        const crop = {
-          originX: Math.max(0, Math.round(overlayLeft * scaleX)),
-          originY: Math.max(0, Math.round(overlayTop * scaleY)),
-          width: Math.max(0, Math.round(overlayW * scaleX)),
-          height: Math.max(0, Math.round(overlayH * scaleY)),
-        };
-
-        try {
-          const manipulated = await ImageManipulator.manipulateAsync(localUri, [{ crop }], { compress: 1, format: ImageManipulator.SaveFormat.JPEG });
-          localUri = manipulated.uri;
-        } catch (err) {
-          console.log('Image manipulation failed, uploading full photo', err);
-        }
+        setphoto(photoData.uri);
+        console.log(photoData)
+        UploadImageToModel(photoData)
+      } catch (error) {
+        console.log("Camera Error:", error);
       }
-
-      const formData = new FormData();
-      formData.append('image', {
-        uri: localUri,
-        name: 'photo.jpg',
-        type: 'image/jpeg',
-      });
-
-      const apiUrl = `${API_URL}/ocr`;
-
-      const response = await axios.post(apiUrl, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-
-      if(response.data.text != null){
-        setCapturedText(response.data.text || ' ');
-        searchMed(response.data.text)
-      }else{
-        Alert.alert("Please Try to Scan Again")
-      }
-    } catch (error) {
-      console.error(error);
-      setCapturedText('Error processing image.');
-    } finally {
-      setLoading(false);
-      setisSearchMed(true);
     }
   };
+
+
+  const UploadImageToModel = async (photo) =>{
+    setLoading(true)
+      try {
+
+        let Photo = photo
+        
+        let localUri = Photo.uri;
+
+        if (previewSize.width && previewSize.height) {
+          const overlayW = Math.round(previewSize.width * 0.6);
+          const overlayH = Math.round(overlayW * 0.3);
+          const overlayLeft = Math.round((previewSize.width - overlayW) / 2);
+          const overlayTop = Math.round((previewSize.height - overlayH) / 2);
+
+          const scaleX = Photo.width / previewSize.width;
+          const scaleY = Photo.height / previewSize.height;
+
+          const crop = {
+            originX: Math.max(0, Math.round(overlayLeft * scaleX)),
+            originY: Math.max(0, Math.round(overlayTop * scaleY)),
+            width: Math.max(0, Math.round(overlayW * scaleX)),
+            height: Math.max(0, Math.round(overlayH * scaleY)),
+          };
+          try {
+            const manipulated = await ImageManipulator.manipulateAsync(localUri, [{ crop }], { compress: 1, format: ImageManipulator.SaveFormat.JPEG });
+            localUri = manipulated.uri;
+          } catch (err) {
+              console.log('Image manipulation failed, uploading full photo', err);
+          }
+        }
+
+
+        const formData = new FormData();
+          formData.append('image', {
+            uri: localUri,
+            name: 'photo.jpg',
+            type: 'image/jpeg',
+          });
+          
+          const apiUrl = `${API_URL}/ocr`;
+  
+          const response = await axios.post(apiUrl, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          });
+  
+          if(response.data.text != null){
+            setCapturedText(response.data.text || ' ');
+            searchMed(response.data.text)
+          }else{
+            Alert.alert("Please Try to Scan Again")
+          }
+
+      } catch (error) {
+        console.log(error)
+        Alert.alert(`Camera Error : ${error}` )
+        console.log("Camera Error:", error);
+      }finally{
+        setisSearchMed(true);
+        setLoading(false);
+      }
+  }
+
+
 
   const viewMedByItem = (id) =>{
     setisMedModal(true)
@@ -170,7 +192,7 @@ export default function CameraScreen({ setisScreen , setRouteCoords }) {
                   }}
                 >
                   <Image style={styles.scan_animation} source={require('../assets/Scan Matrix.gif')} />
-                  <CameraView ref={cameraRef} style={styles.camera} />
+                  <CameraView ref={cameraRef} style={styles.camera} facing='back' autofocus='on' />
 
                   {/* Crop overlay: center box with shaded surroundings */}
                   {previewSize.width > 0 && (
