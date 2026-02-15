@@ -130,8 +130,8 @@ export default function CameraScreen({ setisScreen , setRouteCoords }) {
 
       } catch (error) {
         console.log(error)
-        Alert.alert(`Camera Error : ${error}` )
-        console.log("Camera Error:", error);
+        Alert.alert(`API: ${error}` )
+        console.log("API:", error);
       }finally{
         setisSearchMed(true);
         setLoading(false);
