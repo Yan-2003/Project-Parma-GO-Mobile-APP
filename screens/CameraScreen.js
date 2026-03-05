@@ -311,8 +311,9 @@ export default function CameraScreen({ setisScreen , setRouteCoords }) {
                             <Text style={{
                               backgroundColor:'rgb(161, 52, 235)',
                               color:'white',
-                              padding:5,
-                              borderRadius:5
+                              padding:2,
+                              borderRadius:5,
+                              fontSize : 10,
                             }}>
                               {medicine.pharma_name}
                             </Text>
