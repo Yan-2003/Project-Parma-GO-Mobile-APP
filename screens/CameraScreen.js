@@ -126,7 +126,7 @@ export default function CameraScreen({ setisScreen , setRouteCoords }) {
         headers: { 'Content-Type': 'multipart/form-data' },
         timeout: 180000
       });
-
+      console.log("OUTPUT: ", response.data)
       if(response.data.text != null){
         setCapturedText(response.data.text || ' ');
         searchMed(response.data.text)
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
 
   price:{
     backgroundColor:'rgba(68,37,88,1)',
-    padding:20,
+    padding:10,
     borderRadius:10
   },
 
